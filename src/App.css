@@ -1,0 +1,38 @@
+@font-face {
+  font-family: 'Terminus';
+  src: url('fonts/TerminusTTFWindows-4.46.0.ttf');
+}
+
+ .App {
+  text-align: center;
+  background-color: #001a00;
+  min-height: 100vh;
+  height: 100%;
+
+}
+input, button {
+  background-color: #001a00
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  padding: 20px;
+  color: #9fff80;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
