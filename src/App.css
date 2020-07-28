@@ -1,121 +1,159 @@
 @font-face {
-  font-family: "terminus-bold";
-  src: url("fonts/TerminusTTFWindows-Bold-4.46.0.ttf") format("ttf"),
+  font-family: terminus-bold;
+  src: url(fonts/TerminusTTFWindows-Bold-4.46.0.ttf);
 }
 
 @font-face {
-  font-family: "terminus";
-  src: url("fonts/TerminusTTFWindows-4.46.0.ttf") format("ttf"),
+  font-family: terminus;
+  src: url(fonts/TerminusTTFWindows-4.46.0.ttf);
 }
 
 .wrapper {
-      flex: 1;
-      background-color: '#001a00';
+      flex-grow: 1;
+      background-color: #001a00;
+      display: flex;
+      flex-direction: column;
   }
 body {
-      flex-direction: 'row';
-      flex: 0.75;
+      flex-direction: column;
+      flex-grow: 1;
+      font-family: terminus;
+      background-color: #001a00;
+      color: #9fff80;
+      font-size: 18px;
+      display: flex;
+  }
+  div {
+    display: flex;
   }
 .main {
-      flex-direction: 'column';
+      flex-direction: column;
       flex: 1
   }
 h1 {
-      color: '#9fff80';
       font-size: 26;
-      align-self: 'center';
-      font-family: 'terminus-bold'
+      align-self: center;
+      font-family: terminus-bold
   }
 h2 {
-      font-size: 22;
-      color: '#9fff80';
+      font-size: 22;  
       align-self: 'center';
-      font-family: 'terminus-bold'
+      font-family: terminus-bold
   }
 h3 {
       font-size: 18;
-      color: '#9fff80';
       align-self: 'center';
-      font-family: 'terminus-bold'
+      font-family: terminus-bold
   }
 .checkBox {
-      color: '#9fff80';
       font-size: 18;
-      font-family: 'terminus'
+      font-family: terminus
   }
 .textArea {
       height: 100;
-      border-color: '#9fff80';
+      border-color: #9fff80;
       border-width: 1;
   }
 .infoCard {
       height: 300;
-      border-color: '#9fff80';
+      border-color: #9fff80;
       border-width: 1;
       margin-top: 10;
       margin-bottom: 10
   }
 .center {
-      align-self: 'center';
-      align-items: 'center';
+      align-self: center;
+      align-items: center;
   }
 .rowFirst {
       margin-top: 10;
   }
 .row {
-      margin-top: 15;
-      flex-direction: 'row';
-      align-items: 'center'
+      align-items: center;
   }
-.label {
-      color: '#9fff80';
-      font-size: 18;
-      font-family: 'terminus'
+
+  .col {
+    align-items: center
+}
+label .label {
+      font-size: 18px;
   }
-.input {
+input {
       flex: 1;
-      color: #9fff80;
-      font-size: 18;
-      font-family: terminus
+      font-size: 18px;
   }
-.picker {
-      font-family: terminus;
+.picker {  
       flex: 1;
       text-decoration-line: underline;
-      color: #9fff80;
       align-items: center;
       align-self: center;
       justify-content: center
   }
 .pickerItem {
-      font-family: terminus;
       flex: 1;
       text-decoration-line: underline;
-      color: #9fff80;
   }
 .spacer {
-      flex: 0.1;
+      width: 50px;
   }
-.next {
-      margin-top: 10;
-      margin-bottom: 10;
+button {
+      margin: 10px;
+      width: 150px;
       border-color: #9fff80;
-      border-width: 2;
+      color: #9fff80;
+      background-color: #001a00;
+      font-family: 'terminus';
+      border-width: 1px;
       flex: 1;
-      height: 50;
+      height: 50px;
       align-items: center;
       justify-content: center;
+      font-size: 18px;
+      border-style: solid;
   }
-table {
-      flex-direction: "row";
-      flex: 1;
-      border-color: #9fff80;
 
+  button:focus {
+    outline: none;
+  }
+  button:active {
+    border-width: 2px;
+    font-family: terminus-bold;
+  }
+  select {
+    width: 150px;
+    margin: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-color: #9fff80;
+    color: #9fff80;
+    background-color: #001a00;
+    font-family: 'terminus';
+    border-width: 1px;
+    flex: 1;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border-style: solid;
+}
+select:focus {
+  outline: none;
+}
+select:active {
+  border-width: 2px;
+  font-family: terminus-bold;
+}
+table {
+      flex-direction: row;
+      flex: 1;
+      border-width: 1px;
+      border-color: #9fff80;
+      font-family: terminus;
   }
 th {
       flex-direction: "column";
       border-color: #9fff80;
-      border-width: 1;
+      border-width: 1px;
       flex-grow: 1;
       flex-basis: 0;
       padding: 5;
@@ -124,10 +162,10 @@ th {
 tr {
       flex-direction: "column";
       border-color: #9fff80;
-      border-width: 1;
+      border-width: 1px;
       flex-grow: 1;
       flex-basis: 0;
-      padding: 5;
+      padding: 5px;
       font-family: terminus;
   }
 .separator {
@@ -147,3 +185,33 @@ tr {
       border-color: #9fff80;
       border-width: 3;
   }
+.logo {
+    min-width: 150px;
+    background: center no-repeat url(static/logo.png);
+    background-size: contain;
+}
+.header {
+  display: flex;
+  flex-grow: 1;
+  border-color: #9fff80;
+  border-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  height: 100px;
+}
+
+.filter-active{
+  background-color: #035903;
+  border-width: 3;
+}
+.filters {
+  flex-direction: row;
+}
+.row-filler{
+  flex-grow: 1;
+}
+#root {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+}

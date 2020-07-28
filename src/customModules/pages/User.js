@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Loader from './fragments/Loader.js';
 
-class Home extends Component {
+class User extends Component {
 
     constructor(props) {
         super(props)
@@ -63,5 +63,5 @@ function mapDispatchToProps(dispatch) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps, mapDispatchToProps)(User);
 
