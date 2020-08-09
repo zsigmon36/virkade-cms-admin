@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import Header from './fragments/Header.js'
-import userAction from '../reduxActions/UserAction'
+import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Loader from './fragments/Loader.js';
 
 class Home extends Component {
 
@@ -13,15 +12,14 @@ class Home extends Component {
     }
 
     state = {
-        loading: true,
     }
 
     componentDidMount() {
-        this.setState({ loading: false })
+        this.loading(false)
     }
     loading(data) {
         let loading = data || false;
-        this.setState({ loading: loading })
+        this.props.sharedFlagsAction({ loading: loading })
         return true
     }
 
@@ -34,7 +32,6 @@ class Home extends Component {
     render() {
         return (
             <div className='wrapper'>
-                <Loader loading={this.state.loading} />
                 <Header history={this.props.history} />
                 <div className='row'>
                     <div className='rowFirst'>
@@ -59,7 +56,7 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators(userAction, dispatch)
+        sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
     }
 }
 

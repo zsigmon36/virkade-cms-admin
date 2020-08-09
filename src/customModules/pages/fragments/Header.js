@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { ROUTES } from '../../VirkadeAdminPages';
+import Login from './Login';
+import { DatabaseAPI } from '../../dataAccess/DatabaseAPI.js';
+import { bindActionCreators } from 'redux';
+import userAction from '../../reduxActions/UserAction';
+import sharedFlagsAction from '../../reduxActions/SharedFlagsAction.js'
 class Header extends Component {
 
   state = {
-    payedFilter: false
+    payedFilter: false,
   }
 
   controlButtons() {
@@ -14,7 +19,7 @@ class Header extends Component {
     //common filters
     if (pathname === ROUTES.HOME_PAGE) {
       buttonHtml.push(
-        <div className='col filters'>
+        <div key="0" className='col filters'>
           <div className='col'>
             <p className='label'>filters::</p>
           </div>
@@ -39,27 +44,27 @@ class Header extends Component {
     }
 
     buttonHtml.push(
-      <div className='col row-filler'>
+      <div key="1" className='col row-filler'>
       </div>
     )
 
     if (pathname === ROUTES.USER_PAGE) {
       buttonHtml.push(
-        <div className='col'>
+        <div key="2" className='col'>
           <button onClick={() => alert("click test")} >
             add note
           </button>
         </div>
       )
       buttonHtml.push(
-        <div className='col'>
+        <div key="3" className='col'>
           <button onClick={() => alert("click test")} >
             add session
           </button>
         </div>
       )
       buttonHtml.push(
-        <div className='col'>
+        <div key="4" className='col'>
           <button onClick={() => alert("click test")} >
             update user
           </button>
@@ -69,7 +74,7 @@ class Header extends Component {
 
     if (pathname !== ROUTES.HOME_PAGE) {
       buttonHtml.push(
-        <div className='col'>
+        <div key="5" className='col'>
           <button onClick={() => this.props.history.push(ROUTES.HOME_PAGE)} >
             home
           </button>
@@ -79,7 +84,7 @@ class Header extends Component {
 
     if (pathname === ROUTES.HOME_PAGE && isLoggedIn) {
       buttonHtml.push(
-        <div className='col'>
+        <div key="6" className='col'>
           <button onClick={() => this.props.history.push(ROUTES.SEARCH_PAGE)} >
             user search
           </button>
@@ -89,8 +94,9 @@ class Header extends Component {
 
     //login is always last
     buttonHtml.push(
-      <div className='col'>
-        <button onClick={() => alert("click test")} >
+      <div key="7" className='col'>
+        <button onClick={() => isLoggedIn ? DatabaseAPI.signOut(this.props.user.authToken, this.signOutCallBack): 
+          this.props.sharedFlagsAction({showLogin: true})}>
           {isLoggedIn ? 'sign out' : 'sign in'}
         </button>
       </div>
@@ -100,14 +106,19 @@ class Header extends Component {
 
   render() {
     return (
-      <div className='header'>
-        <div className='col logo'>
-        </div>
-        <div className='col spacer'>
-        </div>
-        {
-          this.controlButtons()
+      <div>
+        { this.props.sharedFlags.showLogin &&
+          <Login history={this.props.history}/>
         }
+        <div className='header'>
+          <div className='col logo'>
+          </div>
+          <div className='col spacer'>
+          </div>
+          {
+            this.controlButtons()
+          }
+        </div>
       </div>
     );
   }
@@ -115,7 +126,16 @@ class Header extends Component {
 
 function mapStateToProps(state, ownProps) {
   return {
-    user: state.user
+    user: state.user,
+    sharedFlags: state.sharedFlags
   }
 }
-export default connect(mapStateToProps)(Header);
+
+function mapDispatchToProps(dispatch) {
+  return {
+      userAction: bindActionCreators(userAction, dispatch),
+      sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

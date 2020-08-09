@@ -1,20 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {
-    TextInput,
-    Text,
-    View,
-    Alert,
-    ScrollView,
-    TouchableNativeFeedback
-} from 'react-native';
-import Header from './Header.js'
-import { defaultState } from '../static/reduxDefault'
+import { defaultState } from '../../static/reduxDefault'
 import { bindActionCreators } from 'redux';
-import userAction from './reduxActions/UserAction';
-import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
-import Loader from './Loader.js';
-import style from '../static/styles.js'
+import userAction from '../reduxActions/UserAction';
+import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
+import alertAction from '../reduxActions/AlertAction.js';
+import { DatabaseAPI } from '../dataAccess/DatabaseAPI.js'
+import Header from './fragments/Header'
+import { ROUTES } from '../VirkadeAdminPages';
 
 class BasicAccount extends Component {
 
@@ -40,7 +33,7 @@ class BasicAccount extends Component {
     }
     loading(data) {
         let loading = data || false;
-        this.setState({ loading: loading })
+        this.props.sharedFlagsAction({ loading: loading })
         return true
     }
 
@@ -64,7 +57,7 @@ class BasicAccount extends Component {
     }
 
     updateInput = (data) => {
-        this.props.actions(data)
+        this.props.userActions(data)
         this.validateInput(data, false)
     }
 
@@ -73,41 +66,49 @@ class BasicAccount extends Component {
             this.updateInput({ "securityQuestion": data.getUserByUsername.securityQuestion })
             this.setState({ step: 2 });
         } else if (error) {
-            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong.  \n${error[0].message}` })
+            this.props.sharedFlagsAction({ alertOpen: true });
         } else {
-            Alert.alert('::info::', `\nhmmm... \nlooks like we can't find that user.`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like we can't find that user.` })
+            this.props.sharedFlagsAction({ alertOpen: true });
         }
         this.loading(false)
     }
     checkSecurityA(data, error) {
         if (data && data.recoverySignIn) {
             this.setState({ step: 3 });
-            Alert.alert('::info::', `\ncheck your email... \nwe have sent you a security passcode you will need to update your password.`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `check your email... \nwe have sent you a security passcode you will need to update your password.` })
+            this.props.sharedFlagsAction({ alertOpen: true });
         } else if (error) {
-            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong.  \n${error[0].message}` })
+            this.props.sharedFlagsAction({ alertOpen: true });
         } else {
-            Alert.alert('::info::', `\nhmmm... \nlooks like we could not verify your credentials.`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like we could not verify your credentials.` })
+            this.props.sharedFlagsAction({ alertOpen: true });
         }
         this.loading(false)
     }
     nextPage(data, error) {
         if (data && data.setNewPassword) {
-            this.props.actions({ resetDefaults: defaultState })
-            Alert.alert('::info::', '\npassword update successful',
-                [
-                    {
-                        text: "ok",
-                        onPress: this.props.navigation.navigate('Splash'),
-                        style: 'default'
-                    }
-                ],
-                { cancelable: false }
-            );
+            this.props.userActions({ resetDefaults: defaultState })
+            this.props.alertAction({ type: 'info' })
+            this.props.alertAction({ msg: 'password update successful' })
+            this.props.sharedFlagsAction({ alertOpen: true });
+            this.props.history.push(ROUTES.HOME_PAGE);
         } else if (error) {
-            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong.  \n${error[0].message}` })
+            this.props.sharedFlagsAction({ alertOpen: true });
             this.setState({ step: 1 });
         } else {
-            Alert.alert('::error::', `\nhmmm... \nlooks like we could not set your new password.`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like we could not set your new password.` })
+            this.props.sharedFlagsAction({ alertOpen: true });
             this.setState({ step: 1 });
         }
         this.loading(false)
@@ -115,14 +116,14 @@ class BasicAccount extends Component {
     validateInput(data, isAlert = true) {
         let { username, password, securityAnswer } = data;
         let msg = '';
-        valid = true
-        if (username != undefined && (username == "" || username.length < 6)) {
+        let valid = true
+        if (username !== undefined && (username === "" || username.length < 6)) {
             msg = 'username is too short'
             valid = false;
-        } else if (password != undefined && (password == "" || password.length < 8)) {
+        } else if (password !== undefined && (password === "" || password.length < 8)) {
             msg = 'password is too short'
             valid = false;
-        } else if (securityAnswer != undefined && securityAnswer == "") {
+        } else if (securityAnswer !== undefined && securityAnswer === "") {
             msg = 'security answer cannot be empty'
             valid = false;
         } else if (this.props.user.authToken.username === username) {
@@ -131,7 +132,9 @@ class BasicAccount extends Component {
         this.setState({ validatorMsg: msg })
 
         if (isAlert && !valid) {
-            Alert.alert('::error::', msg)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: msg })
+            this.props.sharedFlagsAction({ alertOpen: true });
         }
         return valid;
 
@@ -139,88 +142,81 @@ class BasicAccount extends Component {
 
     render() {
         return (
-            <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
-                <Loader loading={this.state.loading} />
-                <Header />
-                <View style={style.body}>
-                    <View style={style.spacer}></View>
-                    <View style={style.main}>
-                        <View style={style.h2}>
-                            <Text style={style.label}>{this.state.validatorMsg}</Text>
-                        </View>
-                        <View style={style.colFirst}>
-                            <Text style={style.h1}>::recover account::</Text>
-                        </View>
-                        {this.state.step == 1 &&
-                            <View style={style.col}>
-                                <Text style={style.label}>username:</Text>
-                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
+            <div className="wrapper">
+                <Header history={this.props.history} />
+                <div className="body">
+                    <div className="main">
+                        <h2>
+                            <p className="label">{this.state.validatorMsg}</p>
+                        </h2>
+                        <div className="row">
+                            <h1>::recover account::</h1>
+                        </div>
+                        {this.state.step === 1 &&
+                            <div className="row">
+                                <p className="label">username:</p>
+                                <input className="input" onChangetext={(username) =>
                                     this.updateInput({ username: username })} value={this.props.user.username} />
-                            </View>
+                            </div>
                         }
-                        {this.state.step == 2 &&
-                            <View style={style.col}>
-                                <Text style={style.label} underlineColorAndroid="#9fff80">security q: {this.props.user.securityQuestion}</Text>
-                            </View>
+                        {this.state.step === 2 &&
+                            <div className="row">
+                                <p className="label">security q: {this.props.user.securityQuestion}</p>
+                            </div>
                         }
-                        {this.state.step == 2 &&
-                            <View style={style.col}>
-                                <Text style={style.label}>security a:</Text>
-                                <TextInput style={style.input} secureTextEntry={this.state.isSecuritySa} underlineColorAndroid="#9fff80" onChangeText={(securityAnswer) =>
+                        {this.state.step === 2 &&
+                            <div className="row">
+                                <p className="label">security a:</p>
+                                <input className="input" type={this.state.isSecuritySa? "password" : "text"} onChangetext={(securityAnswer) =>
                                     this.updateInput({ securityAnswer: securityAnswer })} value={this.props.user.securityAnswer} />
-                                <TouchableNativeFeedback onPress={() => this.toggleShowSa()}>
-                                    <Text style={style.label}>{this.state.saToggleMsg}</Text>
-                                </TouchableNativeFeedback>
-                            </View>
+                                <button onClick={() => this.toggleShowSa()}>
+                                    {this.state.saToggleMsg}
+                                </button>
+                            </div>
                         }
-                        {this.state.step == 3 &&
-                            <View style={style.col}>
-                                <Text style={style.label}>new password:</Text>
-                                <TextInput style={style.input} secureTextEntry={this.state.isSecurityPw} underlineColorAndroid="#9fff80" onChangeText={(password) =>
+                        {this.state.step === 3 &&
+                            <div className="row">
+                                <p className="label">new password:</p>
+                                <input className="input" type={this.state.isSecurityPw? "password" : "text"} onChangetext={(password) =>
                                     this.updateInput({ password: password })} value={this.props.user.password} />
-                                <TouchableNativeFeedback onPress={() => this.toggleShowPw()}>
-                                    <Text style={style.label}>{this.state.pwToggleMsg}</Text>
-                                </TouchableNativeFeedback>
-                            </View>
+                                <button onClick={() => this.toggleShowPw()}>
+                                    {this.state.pwToggleMsg}
+                                </button>
+                            </div>
                         }
-                        {this.state.step == 3 &&
-                            <View style={style.col}>
-                                <Text style={style.label}>passcode:</Text>
-                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(passcode) =>
+                        {this.state.step === 3 &&
+                            <div className="row">
+                                <p className="label">passcode:</p>
+                                <input className="input" onChangetext={(passcode) =>
                                     this.updateInput({ passcode: passcode })} value={this.props.user.passcode} />
-                            </View>
+                            </div>
                         }
-                        {this.state.step == 1 &&
-                            <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => this.validateInput({ username: this.props.user.username }) && this.loading(true) && DatabaseAPI.getSecurityQ(this.props.user.username, this.setSecurityQ)}>
-                                    <View style={style.next}>
-                                        <Text style={style.label}>get security question</Text>
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
+                        {this.state.step === 1 &&
+                            <div className="row">
+                                <button onClick={() => this.validateInput({ username: this.props.user.username }) && this.loading(true) && DatabaseAPI.getSecurityQ(this.props.user.username, this.setSecurityQ)}>
+                                    <div className="next">
+                                        <p className="label">get security question</p>
+                                    </div>
+                                </button>
+                            </div>
                         }
-                        {this.state.step == 2 &&
-                            <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => this.validateInput({ securityAnswer: this.props.user.securityAnswer }) && this.loading(true) && DatabaseAPI.checkSecurityA(this.props.user, this.checkSecurityA)}>
-                                    <View style={style.next}>
-                                        <Text style={style.label}>submit security answer</Text>
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
+                        {this.state.step === 2 &&
+                            <div className="row">
+                                <button onClick={() => this.validateInput({ securityAnswer: this.props.user.securityAnswer }) && this.loading(true) && DatabaseAPI.checkSecurityA(this.props.user, this.checkSecurityA)}>
+                                    submit security answer
+                                </button>
+                            </div>
                         }
-                        {this.state.step == 3 &&
-                            <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => this.validateInput({ password: this.props.user.password }) && this.loading(true) && DatabaseAPI.setNewPassword(this.props.user, this.nextPage)}>
-                                    <View style={style.next}>
-                                        <Text style={style.label}>change password</Text>
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
+                        {this.state.step === 3 &&
+                            <div className="row">
+                                <button onClick={() => this.validateInput({ password: this.props.user.password }) && this.loading(true) && DatabaseAPI.setNewPassword(this.props.user, this.nextPage)}>
+                                    change password
+                                </button>
+                            </div>
                         }
-                    </View>
-                    <View style={style.spacer}></View>
-                </View>
-            </ScrollView>
+                    </div>
+                </div>
+            </div>
         );
     }
 }
@@ -233,7 +229,9 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators(userAction, dispatch)
+        userActions: bindActionCreators(userAction, dispatch),
+        sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
+        alertAction: bindActionCreators(alertAction, dispatch),
     }
 }
 

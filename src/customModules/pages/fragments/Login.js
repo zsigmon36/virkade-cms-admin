@@ -1,39 +1,32 @@
 import React, { Component } from 'react';
-import {
-    Alert,
-    ScrollView,
-    View,
-    Text,
-    TextInput,
-    TouchableNativeFeedback,
-} from 'react-native';
-import Header from './Header.js'
-import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
+import { DatabaseAPI } from '../../dataAccess/DatabaseAPI.js';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import userAction from './reduxActions/UserAction';
-import Loader from './Loader.js';
-import style from '../static/styles.js'
+import userAction from '../../reduxActions/UserAction.js';
+import sharedFlagsAction from '../../reduxActions/SharedFlagsAction.js'
+import alertAction from '../../reduxActions/AlertAction.js';
+import { ROUTES } from '../../VirkadeAdminPages';
 
 class Login extends Component {
     constructor(props) {
         super(props)
         this.signInCallBack = this.signInCallBack.bind(this)
         this.populateStore = this.populateStore.bind(this)
+        this.updateInput = this.updateInput.bind(this)
     }
 
     state = {
         isSecurity: true,
         pwToggleMsg: "[show]",
         validatorMsg: '',
-        loading: true,
     }
-    componentDidMount(){
-        this.setState({loading: false})
+    componentDidMount() {
+        this.loading(false)
     }
-    loading(data){
+
+    loading(data) {
         let loading = data || false;
-        this.setState({loading: loading})
+        this.props.sharedFlagsAction({ loading: loading })
         return true
     }
 
@@ -46,9 +39,11 @@ class Login extends Component {
             this.setState({ pwToggleMsg: "[show]" })
         }
     }
-    updateInput(data) {
-        this.props.userActions(data)
-        this.validateInput(data, false)
+    updateInput(event) {
+        let key = event.target.name
+        let value = event.target.value
+        this.props.userAction({ [key]: value })
+        this.validateInput({ [key]: value }, false)
     }
     clickNext() {
         let { username, password } = this.props.user;
@@ -62,18 +57,21 @@ class Login extends Component {
     validateInput(data, isAlert = true) {
         let { username, password } = data;
         let msg = '';
-        valid = true
-        if (username != undefined && (username == "" || username.length < 6)) {
+        let valid = true
+        if (username !== undefined && (username === "" || username.length < 6)) {
             msg = 'username is too short'
             valid = false;
-        } else if (password != undefined && (password == "" || password.length < 8)) {
+        } else if (password !== undefined && (password === "" || password.length < 8)) {
             msg = 'password is too short'
             valid = false;
         }
         this.setState({ validatorMsg: msg })
 
         if (isAlert && !valid) {
-            Alert.alert('::error::', msg)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: msg })
+            this.props.sharedFlagsAction({ alertOpen: true });
+
         }
         return valid;
 
@@ -82,17 +80,20 @@ class Login extends Component {
     signInCallBack(data) {
         if (data && data.signIn) {
             let { username, token, createdDate } = data.signIn
-            this.updateInput({
-                'authToken': {
+            let target = {
+                name: "authToken", value: {
                     'token': token,
                     'createdDate': createdDate,
                     'username': username
                 }
-            })
+            }
+            this.updateInput({ target })
             DatabaseAPI.getAllFieldsUserByUserName(this.props.user, this.populateStore)
         } else {
             this.loading(false)
-            Alert.alert('::error::', `\nlogin failed, make sure you provided the correct credentials or select forgot password`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `login failed, make sure you provided the correct credentials or select forgot password` })
+            this.props.sharedFlagsAction({ alertOpen: true });
 
         }
     }
@@ -100,68 +101,59 @@ class Login extends Component {
     populateStore(data, error) {
         if (data && data.getUserByUsername) {
             let userDetails = data.getUserByUsername
-            this.updateInput({ 'fullUser': userDetails })
-            if (!this.props.user.tcAgree){
-                this.props.navigation.navigate('TermsConditions');
-            }else if (!this.props.user.liableAgree){
-                this.props.navigation.navigate('LimitedLiable');
-            } else {
-                this.props.navigation.navigate('Home');
-            }
+            let target = {name: 'fullUser', value: userDetails}
+            this.updateInput({ target })
+            this.props.sharedFlagsAction({showLogin: false})
         } else {
-            this.loading(false)
-            Alert.alert('::error::', `\nLooks like something went wrong :( \n${error[0].message}`)
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `Looks like something went wrong :( \n${error[0].message}` })
+            this.props.sharedFlagsAction({ alertOpen: true });
         }
         this.loading(false)
     }
 
     render() {
         return (
-            <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
-                <Loader loading={this.state.loading}/>
-                <Header />
-                <View style={style.body}>
-                    <View style={style.spacer}></View>
-                    <View style={style.main}>
-                        <View style={style.h2}>
-                            <Text style={style.label}>{this.state.validatorMsg}</Text>
-                        </View>
-                        <View style={style.colFirst}>
-                            <Text style={style.h1}>::sign in::</Text>
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.label}>username:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80"
-                                onChangeText={(username) =>
-                                    this.updateInput({ username: username })} value={this.props.user.username} />
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.label}>password:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" secureTextEntry={this.state.isSecurity}
-                                onChangeText={(password) =>
-                                    this.updateInput({ password: password })} value={this.props.user.password} />
-                            <TouchableNativeFeedback onPress={() => this.toggleShowPw()}>
-                                <Text style={style.label}>{this.state.pwToggleMsg}</Text>
-                            </TouchableNativeFeedback>
-                        </View>
-                        <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.clickNext()}>
-                                <View style={style.next}>
-                                    <Text style={style.label}>submit</Text>
-                                </View>
-                            </TouchableNativeFeedback>
-                        </View>
-                        <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('ForgotPassword')}>
-                                <View style={style.forgot}>
-                                    <Text style={style.label}>forgot password?</Text>
-                                </View>
-                            </TouchableNativeFeedback>
-                        </View>
-                    </View>
-                    <View style={style.spacer}></View>
-                </View>
-            </ScrollView>
+            <div>
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <div className="main">
+                            <button className="close-icon" onClick={() => this.props.sharedFlagsAction({ showLogin: false })}>X</button>
+                            <div className="row" style={{ alignSelf: "center" }}>
+                                <h1 style={{ margin: "5px" }}>::sign in::</h1>
+                            </div>
+                            <div className="row" style={{ alignSelf: "center" }}>
+                                <h3>{this.state.validatorMsg}</h3>
+                            </div>
+                            <div className="row">
+                                <p className="label">username:</p>
+                                <input className="input" type="text" name="username"
+                                    onChange={this.updateInput} value={this.props.user.username} />
+                            </div>
+                            <div className="row">
+                                <p className="label">password:</p>
+                                <input className="input" name="password" type={this.state.isSecurity ? "password" : "text"}
+                                    onChange={this.updateInput} value={this.props.user.password} />
+                                <button className="hyperlink" onClick={() => this.toggleShowPw()}>
+                                    {this.state.pwToggleMsg}
+                                </button>
+                            </div>
+                            <div className='row'>
+                                <button onClick={() => this.clickNext()} >
+                                    sign in
+                            </button>
+                            </div>
+                            <div className='row' style={{ alignSelf: "flex-end" }}>
+                                <button className="hyperlink" style={{ flexGrow: 1 }} onClick={() =>
+                                    this.props.sharedFlagsAction({ showLogin: false })
+                                    && this.props.history.push(ROUTES.FORGOTPASS_PAGE)} >
+                                    forgot password
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         );
     }
 }
@@ -174,7 +166,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        userActions: bindActionCreators(userAction, dispatch),
+        userAction: bindActionCreators(userAction, dispatch),
+        sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
+        alertAction: bindActionCreators(alertAction, dispatch),
     }
 }
 

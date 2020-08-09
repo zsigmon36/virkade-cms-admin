@@ -7,49 +7,46 @@ const Loader = props => {
         <Modal
             isOpen={loading}
             //onAfterOpen={afterOpenModal}
-            style={style.wrapper}
-            contentLabel="Example Modal"
+            style={style}
+            contentLabel="Loading Modal"
             onRequestClose={() => { console.log('close modal') }}>
-            <div style={style.modalBackground}>
-                <div style={style.activityWrapper}>
-                    <div style={style.indicator}>
-                        <p style={style.label}>loading...</p>
-                    </div>
-                </div>
-            </div>
+            <div style={style.label}>loading...</div>
         </Modal>
     );
 }
 export default Loader;
 
 const style = {
-    wrapper: {
+    overlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)'
     },
-    modalBackground: {
-        flex: 1,
-        alignItems: 'center',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        backgroundColor: '#00000090'
-    },
-    activityWrapper: {
-        alignItems: 'center',
+    content: {
+        position: 'absolute',
+        width: 300,
+        alignText: 'center',
         height: 100,
-        width: '90%',
-        backgroundColor: '#001a00',
-        borderWidth: 1,
-        borderColor: '#9fff80',
-    },
-    indicator: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: "center",
+        left: '50%',
+        top: '50%',
+        marginLeft: -150,
+        marginTop: -50,
+        border: '1px solid #9fff80',
+        background: '#001a00',
+        overflow: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        borderRadius: '4px',
+        outline: 'none',
+        padding: 0,
+        fontSize: 28
     },
     label: {
-        minWidth: 135,
-        marginLeft: 10,
-        fontSize: 28,
-        justifyContent: "flex-start",
-        fontFamily: 'TerminusTTFWindows-4.46.0'
+        display: 'flex',
+        alignSelf: 'center',
+        justifyContent: 'center',
+        flexGrow: 1,
     }
 }

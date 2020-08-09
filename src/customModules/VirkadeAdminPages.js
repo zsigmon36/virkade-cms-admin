@@ -6,6 +6,7 @@ import User from './pages/User.js';
 import PlaySession from './pages/PlaySession.js';
 import Location from './pages/Location.js';
 import Activity from './pages/Activity.js';
+import ForgotPassword from './pages/ForgotPassword.js';
 
 export const ROUTES = {
   BASE_PAGE: '/',
@@ -15,6 +16,7 @@ export const ROUTES = {
   SESSION_PAGE: '/play-session',
   LOCATION_PAGE: '/location',
   ACTIVITY_PAGE: '/activity',
+  FORGOTPASS_PAGE:'/forgot-password'
 }
 
 const VirkadeAdminPages = () => {
@@ -27,6 +29,7 @@ const VirkadeAdminPages = () => {
       <Route exact path={ROUTES.SESSION_PAGE} component={PlaySession} />
       <Route exact path={ROUTES.LOCATION_PAGE} component={Location} />
       <Route exact path={ROUTES.ACTIVITY_PAGE} component={Activity} />
+      <Route exact path={ROUTES.FORGOTPASS_PAGE} component={ForgotPassword} />
     </BrowserRouter>
   )
 }

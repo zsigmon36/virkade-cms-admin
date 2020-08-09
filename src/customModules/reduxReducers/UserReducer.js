@@ -21,7 +21,7 @@ function covertUserData(data, state) {
     let convertedUser = state;
     let rawUser = data.fullUser
     for (let [key, value] of Object.entries(rawUser)) {
-        if (rawUser[key] && key == 'address') {
+        if (rawUser[key] && key === 'address') {
             let address = value
             convertedUser.street = address.street
             convertedUser.apt = address.apt
@@ -30,19 +30,19 @@ function covertUserData(data, state) {
             convertedUser.state = address.state.stateCode
             convertedUser.postalCode = address.postalCode
             convertedUser.addressTypeCode = address.type.code
-        } else if (rawUser[key] && key == 'height') {
+        } else if (rawUser[key] && key === 'height') {
             let heightFt = Math.floor(value / 12)
             let heightIn = value % 12
             convertedUser.heightFt = String(heightFt)
             convertedUser.heightIn = String(heightIn)
-        } else if (rawUser[key] && key == 'phoneNumbers') {
+        } else if (rawUser[key] && key === 'phoneNumbers') {
             let phones = value
             convertedUser.phoneCountryCode = phones.length > 0 ? phones[0].countryCode : '0'
             convertedUser.phoneNumber = phones.length > 0 ? phones[0].number : ""
             convertedUser.phoneType = phones.length > 0 ? phones[0].type.code : "MBLE_PHNE"
-        } else if (rawUser[key] && key == 'status') {
+        } else if (rawUser[key] && key === 'status') {
             convertedUser.statusId = value.statusId
-        } else if (rawUser[key] && key == 'type') {
+        } else if (rawUser[key] && key === 'type') {
             convertedUser.userTypeCode = value.code
         } else {
             convertedUser[key] = rawUser[key]
