@@ -20,6 +20,7 @@ class Login extends Component {
         pwToggleMsg: "[show]",
         validatorMsg: '',
     }
+
     componentDidMount() {
         this.loading(false)
     }
@@ -39,12 +40,14 @@ class Login extends Component {
             this.setState({ pwToggleMsg: "[show]" })
         }
     }
+
     updateInput(event) {
         let key = event.target.name
         let value = event.target.value
         this.props.userAction({ [key]: value })
         this.validateInput({ [key]: value }, false)
     }
+
     clickNext() {
         let { username, password } = this.props.user;
         let isValid = this.validateInput(this.props.user)

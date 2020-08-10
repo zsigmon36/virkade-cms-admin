@@ -77,6 +77,10 @@ export const DatabaseAPI = {
         let query = GraphQLQueryParamStrings.getPendingSessions(activity, location)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    checkSession: function (authToken, callBack = undefined) {
+        let query = GraphQLQueryParamStrings.checkSession()
+        return dataFetch(query, authToken.username, authToken.token, callBack)
+    }
 }
 
 const dataFetch = function (queryString, username, authToken, callBack, retries = 0) {

@@ -174,4 +174,7 @@ export const GraphQLQueryParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
+    checkSession: function () {
+        return `${DataConstants.QUERY} { ${DataConstants.CHECK_SESSION} }`
+    },
 }
