@@ -90,16 +90,20 @@ export const ACTIVE_DATE = 'activeDate'
 export const EXPIRE_DATE = 'expireDate'
 export const ENABLED = 'enabled'
 
+export const ACTIVITY_ID = 'activityId'
 export const ACTIVITY_NAME = 'activityName'
 export const ACTIVITY = 'activity'
-export const LOCATION_NAME= 'locationName'
+
+export const LOCATION_ID = 'locationId'
+export const LOCATION_NAME = 'locationName'
 export const LOCATION = 'location'
-export const START_DATE= 'startDate'
+export const START_DATE = 'startDate'
 export const END_DATE = 'endDate'
+
 export const INPUT_PLAY_SESSION = 'inputPlaySession'
 export const PAYED = 'payed'
 export const SESSIONID = 'sessionId'
-export const COST_PER_MIN =  "costpm"
+export const COST_PER_MIN = "costpm"
 export const SETUP_MINUTES = "setupMin"
 export const TAX_RATE = "taxRate"
 export const MANAGER = 'manager'

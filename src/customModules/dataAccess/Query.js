@@ -157,18 +157,23 @@ export const GraphQLQueryParamStrings = {
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_PENDING_PLAY_SESSIONS}
                 ${paramString}
             {
+                ${DataConstants.SESSIONID}
                 ${DataConstants.START_DATE}
                 ${DataConstants.END_DATE}
+                ${DataConstants.USERID}
                 ${DataConstants.USERNAME}
                 ${DataConstants.FIRST_NAME}
+                ${DataConstants.LAST_NAME}
                 ${DataConstants.ACTIVITY}{
                     ${DataConstants.NAME}
                     ${DataConstants.COST_PER_MIN}
                     ${DataConstants.SETUP_MINUTES}
+                    ${DataConstants.ACTIVITY_ID}
                 }${DataConstants.LOCATION}{
                     ${DataConstants.NAME}
                     ${DataConstants.PHONE_NUMBER}
                     ${DataConstants.MANAGER}
+                    ${DataConstants.LOCATION_ID}
                 }
             }
         }`
