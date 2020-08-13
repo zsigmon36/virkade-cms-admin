@@ -77,8 +77,8 @@ export const DatabaseAPI = {
         let query = GraphQLQueryParamStrings.checkSecurityA(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
-    getAvailableSessions: function (userObj, activity, location, callback) {
-        let query = GraphQLQueryParamStrings.getAvailableSessions(activity, location)
+    getAvailableSessions: function (userObj, filter, callback) {
+        let query = GraphQLQueryParamStrings.getAvailableSessions(filter)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     getPendingSessions: function (userObj, filter, callback) {
