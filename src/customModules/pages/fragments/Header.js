@@ -8,8 +8,10 @@ import { defaultState } from '../../../static/reduxDefault'
 import userAction from '../../reduxActions/UserAction';
 import sharedFlagsAction from '../../reduxActions/SharedFlagsAction.js'
 import alertAction from '../../reduxActions/AlertAction.js';
+import searchFilterAction from '../../reduxActions/SearchFilterAction';
 
 const ADMIN_TYPE_CODE = 'ADMN'
+const NOT_PAYED = 'not payed'
 
 class Header extends Component {
 
@@ -17,6 +19,10 @@ class Header extends Component {
     super(props)
     this.permissionCheck = this.permissionCheck.bind(this)
     this.signOutCallBack = this.signOutCallBack.bind(this)
+    this.updateFilterInput = this.updateFilterInput.bind(this)
+  }
+
+  componentDidMount() {
     let location = this.props.history.location;
     if (this.props.user.authToken && this.props.user.authToken.token !== "") {
       DatabaseAPI.checkSession(this.props.user.authToken, this.permissionCheck)
@@ -35,16 +41,18 @@ class Header extends Component {
     return true
   }
 
-  updateInput(event) {
+  updateFilterInput(event) {
     let key = event.target.name
     let value = event.target.value
-    this.props.userAction({ [key]: value })
+    this.props.searchFilterAction({ [key]: value })
+    this.props.history.push({ pathname: ROUTES.BASE_PAGE})
+    this.props.history.goBack();
   }
 
   permissionCheck(data) {
     let location = this.props.history.location;
     let isValid = data || data.checkSession || false;
-    if (isValid && this.props.user.userTypeCode !== ADMIN_TYPE_CODE && (location.pathname !== ROUTES.HOME_PAGE )) {
+    if (isValid && this.props.user.userTypeCode !== ADMIN_TYPE_CODE && (location.pathname !== ROUTES.HOME_PAGE)) {
       this.props.alertAction({ type: 'error' })
       this.props.alertAction({ msg: `only admin users are allowed access past the home page` })
       this.props.sharedFlagsAction({ alertOpen: true });
@@ -58,7 +66,7 @@ class Header extends Component {
           'username': ''
         }
       }
-      this.updateInput({ target })
+      this.props.userAction({ target })
       this.props.history.push(ROUTES.HOME_PAGE);
     }
     this.loading(false)
@@ -97,30 +105,50 @@ class Header extends Component {
     this.loading(false)
   }
 
+  toggleNotPayed() {
+    if (this.props.searchFilter.selPayedFilter === NOT_PAYED) {
+      this.props.searchFilterAction({ selPayedFilter: '' })
+    } else {
+      this.props.searchFilterAction({ selPayedFilter: NOT_PAYED })
+    }
+    this.props.history.push({ pathname: ROUTES.BASE_PAGE})
+    this.props.history.goBack();
+  }
+
   controlButtons() {
     let buttonHtml = [];
     let pathname = this.props.history.location.pathname || '/';
     let isLoggedIn = this.props.user.authToken.token.length > 0
     //common filters
-    if (pathname === ROUTES.HOME_PAGE) {
+    if (pathname === ROUTES.HOME_PAGE || pathname === ROUTES.USER_PAGE) {
       buttonHtml.push(
         <div key="0" className='col filters'>
           <div className='col'>
             <p className='label'>filters::</p>
           </div>
           <div className='col'>
-            <button onClick={() => alert("click test")} className={this.state.payedFilter ? 'filter-active' : 'filter-inactive'} >
+            <button onClick={() => this.toggleNotPayed()} className={this.props.searchFilter.selPayedFilter === NOT_PAYED ? 'filter-active' : 'filter-inactive'} >
               not payed
             </button>
           </div>
           <div className='col'>
-            <select id='activity-filter' name='activity-filter' onChange={() => alert("click test")} >
-              <option>activity</option>
+            <select id='activity-filter' name='selActivityFilter' value={this.props.searchFilter.selActivityFilter}  onChange={this.updateFilterInput} >
+              <option key='0' value=''>activity</option>
+              {
+                this.props.searchFilter.activityFilterOptions.map(item => {
+                  return <option key={item.activityId} value={item.activityId}>{item.name}</option>
+                })
+              }
             </select>
           </div>
           <div className='col'>
-            <select id='location-filter' name='location-filter' onChange={() => alert("click test")} >
-              <option>location</option>
+            <select id='location-filter' name='selLocationFilter' value={this.props.searchFilter.selLocationFilter} onChange={this.updateFilterInput} >
+              <option key='0' value=''>location</option>
+              {
+                this.props.searchFilter.locationFilterOptions.map(item => {
+                  return <option key={item.locationId} value={item.locationId}>{item.name}</option>
+                })
+              }
             </select>
           </div>
 
@@ -212,7 +240,8 @@ class Header extends Component {
 function mapStateToProps(state, ownProps) {
   return {
     user: state.user,
-    sharedFlags: state.sharedFlags
+    sharedFlags: state.sharedFlags,
+    searchFilter: state.searchFilter,
   }
 }
 
@@ -221,6 +250,7 @@ function mapDispatchToProps(dispatch) {
     userAction: bindActionCreators(userAction, dispatch),
     sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
     alertAction: bindActionCreators(alertAction, dispatch),
+    searchFilterAction: bindActionCreators(searchFilterAction, dispatch),
   }
 }
 

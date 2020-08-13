@@ -8,6 +8,8 @@ export const PROTOCOL = 'http'
 //queries
 export const QUERY = 'query'
 export const GET_ALL_STATES = 'getAllStates'
+export const GET_ALL_ACTIVITIES = 'getAllActivities'
+export const GET_ALL_LOCATIONS = 'getAllLocations'
 export const GET_USER_BY_USERNAME = 'getUserByUsername'
 export const GET_AVAIL_PLAY_SESSIONS = 'getAvailableSessions'
 export const GET_PENDING_PLAY_SESSIONS = 'getPendingSessions'

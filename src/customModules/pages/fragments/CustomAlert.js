@@ -1,6 +1,8 @@
 import React from 'react';
 import Modal from 'react-modal';
 
+Modal.setAppElement('#root');
+
 const CustomAlert = props => {
     let { isOpen, type, msg, onClose } = props;
     isOpen = isOpen || false;
@@ -9,6 +11,10 @@ const CustomAlert = props => {
 
     return (
         <Modal
+            aria={{
+                labelledby: "alert-label",
+                describedby: "alert-label"
+            }}
             isOpen={isOpen}
             //onAfterOpen={afterOpenModal}
             style={style}
@@ -19,7 +25,7 @@ const CustomAlert = props => {
             {type === 'error' && '::error::'}
 
             <div style={style.wrapper}>
-                <div style={style.label}>
+                <div id='alert-label' style={style.label}>
                     <p >{msg}</p>
                 </div>
                 <div>
@@ -48,7 +54,7 @@ const style = {
     },
     content: {
         position: 'absolute',
-        top:1,
+        top: 1,
         width: 400,
         alignText: 'center',
         height: 225,

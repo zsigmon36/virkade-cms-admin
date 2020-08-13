@@ -1,16 +1,21 @@
 import React from 'react';
 import Modal from 'react-modal';
 
+Modal.setAppElement('#root');
+
 const Loader = props => {
     let loading = props.loading || false;
     return (
         <Modal
+            aria={{
+                labelledby: "loading",
+            }}
             isOpen={loading}
             //onAfterOpen={afterOpenModal}
             style={style}
             contentLabel="Loading Modal"
             onRequestClose={() => { console.log('close modal') }}>
-            <div style={style.label}>loading...</div>
+            <div id='loading' style={style.label}>loading...</div>
         </Modal>
     );
 }

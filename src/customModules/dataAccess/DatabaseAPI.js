@@ -61,6 +61,14 @@ export const DatabaseAPI = {
         let query = GraphQLQueryParamStrings.getAllStates()
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    getAllActivities: function (userObj, callback) {
+        let query = GraphQLQueryParamStrings.getAllActivities()
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    getAllLocations: function (userObj, callback) {
+        let query = GraphQLQueryParamStrings.getAllLocations()
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
     getSecurityQ: function (username, callback) {
         let query = GraphQLQueryParamStrings.getSecurityQ(username)
         return dataFetch(query, username, '', callback)
@@ -73,8 +81,8 @@ export const DatabaseAPI = {
         let query = GraphQLQueryParamStrings.getAvailableSessions(activity, location)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
-    getPendingSessions: function (userObj, activity, location, callback) {
-        let query = GraphQLQueryParamStrings.getPendingSessions(activity, location)
+    getPendingSessions: function (userObj, filter, callback) {
+        let query = GraphQLQueryParamStrings.getPendingSessions(filter)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     checkSession: function (authToken, callBack = undefined) {

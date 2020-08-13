@@ -80,7 +80,7 @@ h3 {
       align-items: center;
   }
 .rowFirst {
-      margin-top: 10;
+      margin-top: 10px;
   }
 .row {
       align-items: center;
@@ -153,7 +153,7 @@ button {
     font-family: terminus-bold;
   }
   select {
-    width: 150px;
+    width: 200px;
     margin: 10px;
     padding-left: 10px;
     padding-right: 10px;
@@ -192,7 +192,7 @@ table, .table {
       margin: 0 10px;
   }
 th, .th {
-      flex-direction: "column";
+      flex-direction: column;
       border-color: #9fff80;
       font-family: terminus-bold;
       border-style: solid;
@@ -204,7 +204,7 @@ th, .th {
 
   }
 tr, .tr {
-      flex-direction: "column";
+      flex-direction: column;
       border-color: #9fff80;
       flex-grow: 1;
       flex-basis: 0;
@@ -247,8 +247,8 @@ tr, .tr {
 }
 
 .filter-active{
-  background-color: #035903;
-  border-width: 3;
+  background-color: #003700;
+  border-width: 3px;
 }
 .filters {
   flex-direction: row;

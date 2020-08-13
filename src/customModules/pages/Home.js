@@ -14,29 +14,32 @@ class Home extends Component {
         super(props)
         this.nextPage = this.nextPage.bind(this)
         this.setPendingSessions = this.setPendingSessions.bind(this)
+        this.refreshSessions = this.refreshSessions.bind(this)
     }
-
+    
     state = {
         pendingSessions: [],
-        loading: true,
-    }
-
-    checkBoxToggle = (name) => {
-        if (name === '[ ]') {
-            this.setState({ canContact: '[X]' })
-        } else {
-            this.setState({ canContact: '[ ]' })
-        }
+        refreshInterval: function () { }
     }
 
     componentDidMount() {
-        DatabaseAPI.getPendingSessions(this.props.user, undefined, undefined, this.setPendingSessions)
-        this.loading(false)
+        this.refreshSessions()
+        let refreshInterval = setInterval(this.refreshSessions, (1 * 60 * 1000))
+        this.setState({ refreshInterval })
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.state.refreshInterval)
+    }
+
+    refreshSessions() {
+        this.loading(true)
+        DatabaseAPI.getPendingSessions(this.props.user, this.props.searchFilter, this.setPendingSessions)
     }
 
     setPendingSessions(data) {
-        if (data.getPendingSessions) {
-            let pendingSessions = [];
+        let pendingSessions = [];
+        if (data.getPendingSessions && data.getPendingSessions.length > 0) {
             pendingSessions.push(
                 <div key={0} className='table row'>
                     <div className='th' style={{ flexGrow: 0.5 }}>payed</div>
@@ -54,7 +57,7 @@ class Home extends Component {
                 let endDate = moment(session.endDate, 'yyyy-MM-DD hh:mm:ss.S')
                 startDate = startDate.format('hh:mm a')
                 endDate = endDate.format('hh:mm a')
-                let { payed, sessionId, firstName, lastName, username, userId} = session
+                let { payed, sessionId, firstName, lastName, username, userId } = session
                 let locName = session.location.name;
                 let locId = session.location.locationId;
                 let actName = session.activity.name;
@@ -93,8 +96,14 @@ class Home extends Component {
                 )
                 return true;
             });
-            this.setState({ 'pendingSessions': pendingSessions })
+        } else {
+            pendingSessions.push(
+                <div key={0} className='table row'>
+                    <div className='th center'>:no pending sessions:</div>
+                </div>
+            );
         }
+        this.setState({ 'pendingSessions': pendingSessions })
         this.loading(false)
     }
 
@@ -114,13 +123,11 @@ class Home extends Component {
         return (
             <div className='wrapper'>
                 <Header history={this.props.history} />
-                <div className='row'>
-                    <div className='rowFirst'>
-                        <h2>::pending sessions::</h2>
-                    </div>
+                <div className='row section'>
+                    <h2>::pending sessions::</h2>
                 </div>
                 <div className='section border'>
-                {this.state.pendingSessions}
+                    {this.state.pendingSessions}
                 </div>
             </div>
         );
@@ -129,7 +136,8 @@ class Home extends Component {
 
 function mapStateToProps(state, ownProps) {
     return {
-        user: state.user
+        user: state.user,
+        searchFilter: state.searchFilter,
     }
 }
 

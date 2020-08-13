@@ -74,6 +74,22 @@ export const GraphQLQueryParamStrings = {
             }}`
         return query;
     },
+    getAllActivities: function () {
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_ALL_ACTIVITIES}
+            {
+                ${DataConstants.ACTIVITY_ID}
+                ${DataConstants.NAME} 
+            }}`
+        return query;
+    },
+    getAllLocations: function () {
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_ALL_LOCATIONS}
+            {
+                ${DataConstants.LOCATION_ID}
+                ${DataConstants.NAME} 
+            }}`
+        return query;
+    },
     addUserLegalDoc: function (username, legalTypeCode, agree) {
         //2020-05-30 02:30:57.311
         let curDate = new Date()
@@ -108,18 +124,21 @@ export const GraphQLQueryParamStrings = {
         return query; //.replace(/\s/g, '');
 
     },
-    getAvailableSessions: function (activity, location) {
+    getAvailableSessions: function (filter) {
         let paramString = ""
-        if (activity || location){
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter)){
             paramString += "("
         }
-        if (activity){
-            paramString += `${DataConstants.ACTIVITY_NAME}:"${activity}",`
+        if (filter && filter.selActivityFilter){
+            paramString += `${DataConstants.ACTIVITY_ID}:${filter.selActivityFilter}`
         }
-        if (location){
-            paramString += `${DataConstants.LOCATION_NAME}:"${location}"`
+        if (filter && filter.selLocationFilter){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${DataConstants.LOCATION_ID}:${filter.selLocationFilter}`
         }
-        if (activity || location){
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter)){
             paramString += ")"
         }
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_AVAIL_PLAY_SESSIONS}
@@ -140,18 +159,27 @@ export const GraphQLQueryParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
-    getPendingSessions: function (activity, location) {
+    getPendingSessions: function (filter) {
         let paramString = ""
-        if (activity || location){
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter || filter.selPayedFilter)){
             paramString += "("
         }
-        if (activity){
-            paramString += `${DataConstants.ACTIVITY_NAME}:"${activity}",`
+        if (filter && filter.selActivityFilter){
+            paramString += `${DataConstants.ACTIVITY_ID}:${filter.selActivityFilter}`
         }
-        if (location){
-            paramString += `${DataConstants.LOCATION_NAME}:"${location}"`
+        if (filter && filter.selLocationFilter){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${DataConstants.LOCATION_ID}:${filter.selLocationFilter}`
         }
-        if (activity || location){
+        if (filter && filter.selPayedFilter && filter.selPayedFilter !== ''){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${DataConstants.PAYED}:${filter.selPayedFilter === DataConstants.PAYED}`
+        }
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter || filter.selPayedFilter)){
             paramString += ")"
         }
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_PENDING_PLAY_SESSIONS}

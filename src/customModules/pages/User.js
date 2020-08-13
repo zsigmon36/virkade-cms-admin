@@ -38,7 +38,7 @@ class User extends Component {
                 <Header history={this.props.history} />
                 <div className='row'>
                     <div className='rowFirst'>
-                        <h2>::pending sessions::</h2>
+                        <h2>::user page::</h2>
                     </div>
                 </div>
                 <div className='row'>
