@@ -1,51 +1,42 @@
 import React, { Component } from 'react';
 import Header from './fragments/Header.js'
-import userAction from '../reduxActions/UserAction'
+import userAction from '../reduxActions/UserAction.js'
+import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Loader from './fragments/Loader.js';
+import { ROUTES } from '../VirkadeAdminPages.js';
+import TabNav from './fragments/TabNav.js';
 
 class Activity extends Component {
 
     constructor(props) {
         super(props)
-        this.nextPage = this.nextPage.bind(this)
+        this.loading(false)
     }
 
     state = {
-        loading: true,
     }
 
     componentDidMount() {
-        this.setState({ loading: false })
     }
+
     loading(data) {
         let loading = data || false;
-        this.setState({ loading: loading })
+        this.props.sharedFlagsAction({ loading: loading })
         return true
     }
 
-    nextPage(pageName) {
-        this.loading(true)
-        this.props.navigation.navigate(pageName)
-        this.loading(false)
-    }
+    tabData = [
+        { active: false, title: ':user search:', pathname: ROUTES.SEARCH_PAGE },
+        { active: false, title: ':location:', pathname: ROUTES.LOCATION_PAGE },
+        { active: true, title: ':activity:', pathname: ROUTES.ACTIVITY_PAGE },
+    ]
 
     render() {
         return (
             <div className='wrapper'>
-                <Loader loading={this.state.loading} />
                 <Header history={this.props.history} />
-                <div className='row'>
-                    <div className='rowFirst'>
-                        <h2>::activity page::</h2>
-                    </div>
-                </div>
-                <div className='row'>
-                    <table>
-
-                    </table>
-                </div>
+                <TabNav tabData={this.tabData} />
             </div>
         );
     }
@@ -53,13 +44,15 @@ class Activity extends Component {
 
 function mapStateToProps(state, ownProps) {
     return {
-        user: state.user
+        user: state.user,
+        searchFilter: state.searchFilter,
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators(userAction, dispatch)
+        userActions: bindActionCreators(userAction, dispatch),
+        sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
     }
 }
 

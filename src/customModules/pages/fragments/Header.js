@@ -23,12 +23,14 @@ class Header extends Component {
   }
 
   componentDidMount() {
+    /*
     let location = this.props.history.location;
     if (this.props.user.authToken && this.props.user.authToken.token !== "") {
       DatabaseAPI.checkSession(this.props.user.authToken, this.permissionCheck)
     } else if ((!this.props.user.authToken || this.props.user.authToken.token === "") && (location.pathname !== ROUTES.HOME_PAGE && location.pathname !== ROUTES.FORGOTPASS_PAGE)) {
       this.props.history.push(ROUTES.HOME_PAGE);
     }
+    **/
   }
 
   state = {

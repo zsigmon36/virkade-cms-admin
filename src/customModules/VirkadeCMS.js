@@ -17,7 +17,6 @@ class VirkadeCMS extends Component {
   }
 
   componentDidMount() {
-    this.loading(true)
     DatabaseAPI.getAllActivities(this.props.user, this.filterOptionsCallback)
     DatabaseAPI.getAllLocations(this.props.user, this.filterOptionsCallback)
   }

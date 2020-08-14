@@ -28,6 +28,33 @@ body {
   display: block;
   margin: 10px;
 }
+
+.tabs-wrapper {
+  display: flex;
+  border-color: #9fff80;
+  border-width: 1px;
+  border-bottom-style: solid;
+  margin: 30px 0;
+}
+.tab {
+  border-color: #9fff80;
+  border-width: 1px;
+  border-right-style: solid;
+  border-top-style: solid;
+  flex-grow: 1;
+  text-decoration: none;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  text-align: center;
+}
+.tab-active {
+  background-color: #003700;
+  border-width: 2px;
+}
+.tab-last {
+  border-right: none;
+}
+
 .border {
   border-color: #9fff80;
   border-width: 1px;

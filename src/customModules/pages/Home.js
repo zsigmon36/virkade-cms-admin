@@ -12,7 +12,6 @@ class Home extends Component {
 
     constructor(props) {
         super(props)
-        this.nextPage = this.nextPage.bind(this)
         this.setPendingSessions = this.setPendingSessions.bind(this)
         this.refreshSessions = this.refreshSessions.bind(this)
     }
@@ -111,12 +110,6 @@ class Home extends Component {
         let loading = data || false;
         this.props.sharedFlagsAction({ loading: loading })
         return true
-    }
-
-    nextPage(pageName) {
-        this.loading(true)
-        this.props.navigation.navigate(pageName)
-        this.loading(false)
     }
 
     render() {
