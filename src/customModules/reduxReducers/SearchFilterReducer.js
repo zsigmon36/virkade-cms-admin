@@ -5,6 +5,16 @@ const defaultState = {
     selActivityFilter: '',
     selLocationFilter: '',
     selPayedFilter: '',
+
+    selStateFilter: '',
+    fnameFilter: "",
+    lnameFilter: "",
+    emailFilter: "",
+    usernameFilter: "",
+    streetFilter: "",
+    cityFilter: "",
+    zipFilter: "",
+    
 }
 
 export default function searchFilterReducer(state = defaultState, action) {

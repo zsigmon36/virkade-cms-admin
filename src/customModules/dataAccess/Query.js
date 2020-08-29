@@ -207,6 +207,48 @@ export const GraphQLQueryParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
+    searchUsers: function (filter) {
+        let query = `${DataConstants.QUERY} { ${DataConstants.SEARCH_USERS}
+                (
+                    ${DataConstants.FIRST_NAME}:"${filter.fnameFilter}",
+                    ${DataConstants.LAST_NAME}:"${filter.lnameFilter}",
+                    ${DataConstants.EMAILADDRESS}:"${filter.emailFilter}",
+                    ${DataConstants.USERNAME}:"${filter.usernameFilter}",
+                    ${DataConstants.INPUT_ADDRESS}: {
+                        ${DataConstants.STATE_ID}:${filter.selStateFilter?filter.selStateFilter:0},
+                        ${DataConstants.STREET}:"${filter.streetFilter}",
+                        ${DataConstants.CITY}:"${filter.cityFilter}",
+                        ${DataConstants.POSTAL_CODE}:"${filter.zipFilter}"
+                    }
+                )
+            {
+                ${DataConstants.USERID}
+                ${DataConstants.USERNAME} 
+                ${DataConstants.TYPE} {
+                    ${DataConstants.CODE}
+                    ${DataConstants.NAME}
+                }
+                ${DataConstants.ADDRESS}{
+                    ${DataConstants.STATE} {
+                        ${DataConstants.STATE_CODE}
+                    }
+                    ${DataConstants.STREET}
+                    ${DataConstants.UNIT}
+                    ${DataConstants.APT}
+                    ${DataConstants.CITY}
+                    ${DataConstants.POSTAL_CODE}
+                }
+                ${DataConstants.STATUS} {
+                    ${DataConstants.STATUSID}
+                    ${DataConstants.NAME}
+                }
+                ${DataConstants.EMAILADDRESS}
+                ${DataConstants.FIRST_NAME}
+                ${DataConstants.LAST_NAME}
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
     checkSession: function () {
         return `${DataConstants.QUERY} { ${DataConstants.CHECK_SESSION} }`
     },

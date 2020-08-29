@@ -112,9 +112,11 @@ h3 {
 .row {
       align-items: center;
   }
-
   .col {
     align-items: center
+}
+.even-space {
+  flex: 1
 }
 label, .label {
       font-size: 18px;

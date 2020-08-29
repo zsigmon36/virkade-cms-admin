@@ -88,7 +88,11 @@ export const DatabaseAPI = {
     checkSession: function (authToken, callBack = undefined) {
         let query = GraphQLQueryParamStrings.checkSession()
         return dataFetch(query, authToken.username, authToken.token, callBack)
-    }
+    },
+    searchUsers: function (userObj, filter, callback) {
+        let query = GraphQLQueryParamStrings.searchUsers(filter)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
 }
 
 const dataFetch = function (queryString, username, authToken, callBack, retries = 0) {

@@ -14,6 +14,7 @@ export const GET_USER_BY_USERNAME = 'getUserByUsername'
 export const GET_AVAIL_PLAY_SESSIONS = 'getAvailableSessions'
 export const GET_PENDING_PLAY_SESSIONS = 'getPendingSessions'
 export const CHECK_SESSION = 'checkSession'
+export const SEARCH_USERS = 'searchUsers'
 
 //mutations
 export const MUTATION = 'mutation'
