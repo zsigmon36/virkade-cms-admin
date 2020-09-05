@@ -69,6 +69,10 @@ export const DatabaseAPI = {
         let query = GraphQLQueryParamStrings.getAllLocations()
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    getLocation: function (userObj, id, callback) {
+        let query = GraphQLQueryParamStrings.getLocation(id)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
     getSecurityQ: function (username, callback) {
         let query = GraphQLQueryParamStrings.getSecurityQ(username)
         return dataFetch(query, username, '', callback)

@@ -47,7 +47,7 @@ class Header extends Component {
     let key = event.target.name
     let value = event.target.value
     this.props.searchFilterAction({ [key]: value })
-    this.props.history.push({ pathname: ROUTES.BASE_PAGE})
+    this.props.history.push({ pathname: ROUTES.BASE_PAGE })
     this.props.history.goBack();
   }
 
@@ -113,7 +113,7 @@ class Header extends Component {
     } else {
       this.props.searchFilterAction({ selPayedFilter: NOT_PAYED })
     }
-    this.props.history.push({ pathname: ROUTES.BASE_PAGE})
+    this.props.history.push({ pathname: ROUTES.BASE_PAGE })
     this.props.history.goBack();
   }
 
@@ -134,7 +134,7 @@ class Header extends Component {
             </button>
           </div>
           <div className='col'>
-            <select id='activity-filter' name='selActivityFilter' value={this.props.searchFilter.selActivityFilter}  onChange={this.updateFilterInput} >
+            <select id='activity-filter' name='selActivityFilter' value={this.props.searchFilter.selActivityFilter} onChange={this.updateFilterInput} >
               <option key='0' value=''>activity</option>
               {
                 this.props.searchFilter.activityFilterOptions.map(item => {

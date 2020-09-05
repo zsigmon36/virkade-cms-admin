@@ -90,6 +90,26 @@ export const GraphQLQueryParamStrings = {
             }}`
         return query;
     },
+    getLocation: function (locationId) {
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_LOCATION} ( ${DataConstants.LOCATION_ID}: ${locationId} ) {
+            ${DataConstants.ADDRESS} {
+                ${DataConstants.STREET}
+                ${DataConstants.UNIT}
+                ${DataConstants.APT}
+                ${DataConstants.CITY}
+                ${DataConstants.STATE} {
+                    ${DataConstants.STATE_ID}
+                }
+                ${DataConstants.POSTAL_CODE}
+            }
+            ${DataConstants.LOCATION_NAME}
+            ${DataConstants.TAX_RATE}
+            ${DataConstants.DESCRIPTION}
+            ${DataConstants.PHONE_NUM}
+            ${DataConstants.MANAGER}
+        }}`
+        return query;
+    },
     addUserLegalDoc: function (username, legalTypeCode, agree) {
         //2020-05-30 02:30:57.311
         let curDate = new Date()

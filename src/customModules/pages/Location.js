@@ -1,23 +1,43 @@
 import React, { Component } from 'react';
 import Header from './fragments/Header.js'
-import userAction from '../reduxActions/UserAction.js'
 import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ROUTES } from '../VirkadeAdminPages.js';
 import TabNav from './fragments/TabNav.js';
+import validator from 'validator';
+import { DatabaseAPI } from '../dataAccess/DatabaseAPI.js';
+import alertAction from '../reduxActions/AlertAction.js';
+
+const defaultLocalState = {
+    locationSelState: 0,
+    pickerStates: [],
+    selLocationFilter: 0,
+    locationApt: "",
+    locationCity: "",
+    locationDescription: "",
+    locationPhoneNum: "",
+    locationManager: "",
+    locationName: "",
+    locationStreet: "",
+    locationTaxRate: "",
+    locationUnit: "",
+    locationZip: "",
+}
 
 class Location extends Component {
 
     constructor(props) {
         super(props)
-        this.loading(false)
-    }
-
-    state = {
+        this.setPickerSates = this.setPickerSates.bind(this);
+        this.updateInput = this.updateInput.bind(this);
+        this.setLocationDetails = this.setLocationDetails.bind(this);
+        this.state = Object.assign({}, defaultLocalState);
     }
 
     componentDidMount() {
+        this.loading(true)
+        DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
     }
 
     loading(data) {
@@ -26,17 +46,274 @@ class Location extends Component {
         return true
     }
 
+    validateInput(data, isAlert = true) {
+        let { fnameFilter, lnameFilter, emailFilter, usernameFilter, zipFilter } = data;
+        let msg = '';
+        let valid = true
+
+        if (zipFilter !== undefined && zipFilter !== '' && !validator.isPostalCode(zipFilter, "US")) {
+            msg = 'postal code needs to be blank or a valid US postal code'
+            valid = false;
+        } else if (fnameFilter !== undefined && fnameFilter !== "" && fnameFilter.length < 2) {
+            msg = 'first name search needs to be blank or at least 2 characters'
+            valid = false;
+        } else if (lnameFilter !== undefined && lnameFilter !== "" && lnameFilter.length < 2) {
+            msg = 'last name search needs to be blank or at least 2 characters'
+            valid = false;
+        } else if (emailFilter !== undefined && emailFilter !== "" && emailFilter.length < 3) {
+            msg = 'email search needs to be blank or at least 3 characters'
+            valid = false;
+        } else if (usernameFilter !== undefined && (usernameFilter !== "" && usernameFilter.length < 3)) {
+            msg = 'username search needs to be blank or at least 3 characters'
+            valid = false;
+        }
+        this.setState({ validatorMsg: msg })
+
+        if (isAlert && !valid) {
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: msg })
+            this.props.sharedFlagsAction({ alertOpen: true });
+
+        }
+        return valid;
+
+    }
+
     tabData = [
         { active: false, title: ':user search:', pathname: ROUTES.SEARCH_PAGE },
         { active: true, title: ':location:', pathname: ROUTES.LOCATION_PAGE },
         { active: false, title: ':activity:', pathname: ROUTES.ACTIVITY_PAGE },
     ]
 
+    setPickerSates(data) {
+        let pickerItems = [];
+        if (data.getAllStates) {
+            (data.getAllStates).map(item => {
+                pickerItems.push(<option key={item.name} value={item.stateId}>{item.name}</option>)
+                return true
+            })
+        }
+        this.setState({ 'pickerStates': pickerItems })
+        this.loading(false)
+    }
+
+    updateInput(event) {
+        let key = event.target.name
+        let value = event.target.value
+        this.setState({ [key]: value })
+        this.validateInput({ [key]: value }, false)
+        if (key === 'selLocationFilter') {
+            DatabaseAPI.getLocation(this.props.user, value, this.setLocationDetails)
+        }
+    }
+
+    setLocationDetails(data, error) {
+        let newState = Object.assign({}, this.state);
+        let location = data.getLocation
+        if (location) {
+            newState.locationDescription = location.description
+            newState.locationPhoneNum = location.phoneNum
+            newState.locationManager = location.manager
+            newState.locationName = location.name
+            newState.locationTaxRate = location.taxRate
+            newState.locationApt = location.address.apt || ''
+            newState.locationCity = location.address.city
+            newState.locationStreet = location.address.street
+            newState.locationUnit = location.address.unit || ''
+            newState.locationZip = location.address.postalCode
+            newState.locationSelState = location.address.state.stateId
+        } else {
+            newState = Object.assign({}, defaultLocalState);
+            newState.pickerStates = this.state.pickerStates
+        }
+        this.setState(newState);
+    }
+
     render() {
         return (
             <div className='wrapper'>
                 <Header history={this.props.history} />
                 <TabNav tabData={this.tabData} />
+                <div className='section'>
+                    < div className='row'>
+                        <div className='col even-space border' style={{ padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
+                            <h2>::location details::</h2>
+                            <div className='separator'></div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <select id='location-filter' style={{ width: '100%' }} name='selLocationFilter' value={this.state.selLocationFilter} onChange={this.updateInput} >
+                                    <option key='0' value={0}>location</option>
+                                    {
+                                        this.props.searchFilter.locationFilterOptions.map(item => {
+                                            return <option key={item.locationId} value={item.locationId}>{item.name}</option>
+                                        })
+                                    }
+                                </select>
+                            </div>
+
+                            <div className='separator'></div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationName">name:</label>
+                                    <input autoComplete='off' type="text" id="location-name" name="locationName" value={this.state.locationName} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationTaxRate">tax rate:</label>
+                                    <input autoComplete='off' type="text" id="location-taxRate" name="locationTaxRate" value={this.state.locationTaxRate} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationDescription">description:</label>
+                                    <input autoComplete='off' type="text" id="location-description" name="locationDescription" value={this.state.locationDescription} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationPhoneNum">phone number:</label>
+                                    <input autoComplete='off' type="text" id="location-phoneNum" name="locationPhoneNum" value={this.state.locationPhoneNum} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationManager">manager:</label>
+                                    <input autoComplete='off' type="text" id="location-manager" name="locationManager" value={this.state.locationManager} onChange={this.updateInput} />
+                                </div>
+                            </div>
+
+                            <h4>:address details:</h4>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationStreet">street:</label>
+                                    <input autoComplete='off' type="text" id="location-street" name="locationStreet" value={this.state.locationStreet} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationUnit">unit:</label>
+                                    <input autoComplete='off' type="text" id="location-unit" name="locationUnit" value={this.state.locationUnit} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationApt">apt:</label>
+                                    <input autoComplete='off' type="text" id="location-apt" name="locationApt" value={this.state.locationApt} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationCity">city:</label>
+                                    <input autoComplete='off' type="text" id="location-city" name="locationCity" value={this.state.locationCity} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+
+                                <select id='location-state' name='locationSelState' style={{ width: '100%' }} value={this.state.locationSelState} onChange={this.updateInput} >
+                                    <option key='0' value={0}>state</option>
+                                    {this.state.pickerStates}
+                                </select>
+
+                            </div>
+                            <div className='col even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationZip">zip:</label>
+                                    <input autoComplete='off' type="text" id="location-zip" name="locationZip" value={this.state.locationZip} onChange={this.updateInput} />
+                                </div>
+                            </div>
+
+                            <div className='col even-space' style={{ width: '65%' }}>
+                                <button style={{ width: '100%', margin: '50px 0', borderWidth: 2 }} onClick={() => alert("click test")} >
+                                    update location
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className='col even-space border' style={{ padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
+                            <h2>::new location::</h2>
+                            <div className='separator'></div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationName">name:</label>
+                                    <input autoComplete='off' type="text" id="location-name" name="locationName" value={this.state.locationName} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationTaxRate">tax rate:</label>
+                                    <input autoComplete='off' type="text" id="location-taxRate" name="locationTaxRate" value={this.state.locationTaxRate} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationDescription">description:</label>
+                                    <input autoComplete='off' type="text" id="location-description" name="locationDescription" value={this.state.locationDescription} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationPhoneNum">phone number:</label>
+                                    <input autoComplete='off' type="text" id="location-phoneNum" name="locationPhoneNum" value={this.state.locationPhoneNum} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationManager">manager:</label>
+                                    <input autoComplete='off' type="text" id="location-manager" name="locationManager" value={this.state.locationManager} onChange={this.updateInput} />
+                                </div>
+                            </div>
+
+                            <h4>:address details:</h4>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationStreet">street:</label>
+                                    <input autoComplete='off' type="text" id="location-street" name="locationStreet" value={this.state.locationStreet} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationUnit">unit:</label>
+                                    <input autoComplete='off' type="text" id="location-unit" name="locationUnit" value={this.state.locationUnit} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationApt">apt:</label>
+                                    <input autoComplete='off' type="text" id="location-apt" name="locationApt" value={this.state.locationApt} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationCity">city:</label>
+                                    <input autoComplete='off' type="text" id="location-city" name="locationCity" value={this.state.locationCity} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+
+                                <select id='location-state' name='locationSelState' style={{ width: '100%' }} value={this.state.locationSelState} onChange={this.updateInput} >
+                                    <option key='0' value={0}>state</option>
+                                    {this.state.pickerStates}
+                                </select>
+
+                            </div>
+                            <div className='col even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationZip">zip:</label>
+                                    <input autoComplete='off' type="text" id="location-zip" name="locationZip" value={this.state.locationZip} onChange={this.updateInput} />
+                                </div>
+                            </div>
+
+                            <div className='col even-space' style={{ width: '65%' }}>
+                                <button style={{ width: '100%', margin: '50px 0', borderWidth: 2 }} onClick={() => alert("click test")} >
+                                    add location
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -51,8 +328,8 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        userAction: bindActionCreators(userAction, dispatch),
         sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
+        alertAction: bindActionCreators(alertAction, dispatch),
     }
 }
 
