@@ -28,7 +28,7 @@ const CustomAlert = props => {
                 <div id='alert-label' style={style.label}>
                     <p >{msg}</p>
                 </div>
-                <div>
+                <div style={style.button}>
                     <button onClick={onClose()}>ok</button>
                 </div>
             </div>
@@ -77,5 +77,8 @@ const style = {
         alignItems: 'center',
         flexGrow: 1,
         height: 110,
+    },
+    button: {
+        justifyContent: 'center',
     }
 }

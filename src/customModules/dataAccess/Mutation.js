@@ -217,4 +217,42 @@ export const GraphQLMutationParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
+    addUpdateLocation: function (fields) {
+        let query = `${DataConstants.MUTATION} { ${DataConstants.ADD_UPDATE_LOCATION}
+                (
+                    ${DataConstants.INPUT_LOCATION}: {
+                        ${DataConstants.LOCATION_ID}:${fields.selLocationFilter?fields.selLocationFilter:0},
+                        ${DataConstants.TAX_RATE}:${fields.locationTaxRate},
+                        ${DataConstants.LOCATION_NAME}:"${fields.locationName}",
+                        ${DataConstants.DESCRIPTION}:"${fields.locationDescription}",
+                        ${DataConstants.PHONE_NUM}:"${fields.locationPhoneNum}",
+                        ${DataConstants.MANAGER}:"${fields.locationManager}",
+                        ${DataConstants.STATE_ID}:${fields.locationSelState?fields.locationSelState:0},
+                        ${DataConstants.STREET}:"${fields.locationStreet}",
+                        ${fields.locationUnit.length > 0 ? `${DataConstants.UNIT}:"${fields.locationUnit}",` : ""}
+                        ${fields.locationApt.length > 0 ? `${DataConstants.APT}:"${fields.locationApt}",` : ""}
+                        ${DataConstants.CITY}:"${fields.locationCity}",
+                        ${DataConstants.POSTAL_CODE}:"${fields.locationZip}"
+                    }
+                )
+            {
+                ${DataConstants.ADDRESS} {
+                    ${DataConstants.STREET}
+                    ${DataConstants.UNIT}
+                    ${DataConstants.APT}
+                    ${DataConstants.CITY}
+                    ${DataConstants.STATE} {
+                        ${DataConstants.STATE_ID}
+                    }
+                    ${DataConstants.POSTAL_CODE}
+                }
+                ${DataConstants.LOCATION_NAME}
+                ${DataConstants.TAX_RATE}
+                ${DataConstants.DESCRIPTION}
+                ${DataConstants.PHONE_NUM}
+                ${DataConstants.MANAGER}
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
 }

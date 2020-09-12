@@ -30,6 +30,7 @@ export const ADD_USER_LEGAL_DOC = 'addUserLegalDoc'
 export const RECOVERY_SIGN_IN = 'recoverySignIn'
 export const SET_NEW_PASSWORD = 'setNewPassword'
 export const ADD_USER_SESSION = 'addUserSession'
+export const ADD_UPDATE_LOCATION = 'addUpdateLocation'
 
 //params & fields
 export const TYPE = 'type'
@@ -99,6 +100,7 @@ export const ACTIVITY_ID = 'activityId'
 export const ACTIVITY_NAME = 'activityName'
 export const ACTIVITY = 'activity'
 
+export const INPUT_LOCATION = 'inputLocation'
 export const LOCATION_ID = 'locationId'
 export const LOCATION_NAME = 'name'
 export const LOCATION = 'location'

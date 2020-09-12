@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Header from './fragments/Header.js'
 import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
+import searchFilterAction from '../reduxActions/SearchFilterAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ROUTES } from '../VirkadeAdminPages.js';
@@ -10,7 +11,7 @@ import { DatabaseAPI } from '../dataAccess/DatabaseAPI.js';
 import alertAction from '../reduxActions/AlertAction.js';
 
 const defaultLocalState = {
-    locationSelState: 0,
+    locationSelState: "0",
     pickerStates: [],
     selLocationFilter: 0,
     locationApt: "",
@@ -32,12 +33,27 @@ class Location extends Component {
         this.setPickerSates = this.setPickerSates.bind(this);
         this.updateInput = this.updateInput.bind(this);
         this.setLocationDetails = this.setLocationDetails.bind(this);
+        this.confirmationAlert = this.confirmationAlert.bind(this);
+        this.filterOptionsCallback = this.filterOptionsCallback.bind(this);
         this.state = Object.assign({}, defaultLocalState);
     }
 
     componentDidMount() {
         this.loading(true)
         DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
+        if (this.props.location && this.props.location.search) {
+            let search = this.props.location.search;
+            let urlParams = new URLSearchParams(search);
+            let id = urlParams.get('id');
+
+            let event = {
+                target: {
+                    name: 'selLocationFilter',
+                    value: parseInt(id)
+                }
+            }
+            this.updateInput(event)
+        }
     }
 
     loading(data) {
@@ -47,24 +63,36 @@ class Location extends Component {
     }
 
     validateInput(data, isAlert = true) {
-        let { fnameFilter, lnameFilter, emailFilter, usernameFilter, zipFilter } = data;
+        let { locationDescription, locationPhoneNum, locationManager, locationTaxRate, locationZip, locationName, locationCity, locationStreet, locationSelState } = data;
         let msg = '';
         let valid = true
 
-        if (zipFilter !== undefined && zipFilter !== '' && !validator.isPostalCode(zipFilter, "US")) {
-            msg = 'postal code needs to be blank or a valid US postal code'
+        if (locationZip !== undefined && (locationZip === '' || !validator.isPostalCode(locationZip, "US"))) {
+            msg = 'postal code needs to be a valid US postal code'
             valid = false;
-        } else if (fnameFilter !== undefined && fnameFilter !== "" && fnameFilter.length < 2) {
-            msg = 'first name search needs to be blank or at least 2 characters'
+        } else if (locationName !== undefined && (locationName === "" || locationName.length < 6)) {
+            msg = 'name cannot be empty and must be at least 6 characters'
             valid = false;
-        } else if (lnameFilter !== undefined && lnameFilter !== "" && lnameFilter.length < 2) {
-            msg = 'last name search needs to be blank or at least 2 characters'
+        } else if (locationDescription !== undefined && (locationDescription === "" || locationDescription.length < 15)) {
+            msg = 'description cannot be empty and must be at least 15 characters'
             valid = false;
-        } else if (emailFilter !== undefined && emailFilter !== "" && emailFilter.length < 3) {
-            msg = 'email search needs to be blank or at least 3 characters'
+        } else if (locationCity !== undefined && locationCity === "") {
+            msg = 'city cannot be empty'
             valid = false;
-        } else if (usernameFilter !== undefined && (usernameFilter !== "" && usernameFilter.length < 3)) {
-            msg = 'username search needs to be blank or at least 3 characters'
+        } else if (locationStreet !== undefined && locationStreet === "") {
+            msg = 'street cannot be empty'
+            valid = false;
+        } else if (locationPhoneNum !== undefined && (locationPhoneNum === "" || !validator.isMobilePhone(locationPhoneNum.toString(), "en-US"))) {
+            msg = 'phone number needs to be a valid mobile phone number'
+            valid = false;
+        } else if (locationManager !== undefined && locationManager === "") {
+            msg = 'manager cannot be empty'
+            valid = false;
+        } else if (locationTaxRate !== undefined && (locationTaxRate === "" || !validator.isNumeric(locationTaxRate.toString()))) {
+            msg = 'tax rate cannot be empty and must be a number or decimal'
+            valid = false;
+        } else if (locationSelState !== undefined && locationSelState === "0") {
+            msg = 'must select a state'
             valid = false;
         }
         this.setState({ validatorMsg: msg })
@@ -127,6 +155,55 @@ class Location extends Component {
             newState.pickerStates = this.state.pickerStates
         }
         this.setState(newState);
+    }
+    addLocation() {
+        if (this.validateInput(this.state)) {
+            this.loading(true)
+            let curState = Object.assign({}, this.state);
+            curState.selLocationFilter = 0;
+            DatabaseAPI.addUpdateLocation(this.props.user, curState, this.confirmationAlert)
+        }
+    }
+
+    updateLocation() {
+        if (this.validateInput(this.state) && this.state.selLocationFilter && this.state.selLocationFilter > 0) {
+            this.loading(true)
+            DatabaseAPI.addUpdateLocation(this.props.user, this.state, this.confirmationAlert)
+        } else if (!this.state.selLocationFilter || this.state.selLocationFilter === 0) {
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: 'update requires a selected location' })
+            this.props.sharedFlagsAction({ alertOpen: true });
+        }
+    }
+
+    confirmationAlert(data, error) {
+        if (data && (data.addUpdateLocation)) {
+            this.props.alertAction({ type: 'info' })
+            this.props.alertAction({ msg: "location saved successfully" })
+            this.props.sharedFlagsAction({ alertOpen: true });
+            DatabaseAPI.getAllLocations(this.props.user, this.filterOptionsCallback)
+        } else if (error) {
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong. \n${error[0].message}` })
+            this.props.sharedFlagsAction({ alertOpen: true });
+            this.loading(false)
+        } else {
+            this.props.alertAction({ type: 'error' })
+            this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong.` })
+            this.props.sharedFlagsAction({ alertOpen: true });
+            this.loading(false)
+        }
+    }
+
+    filterOptionsCallback(data, error) {
+        if (data && data.getAllLocations && data.getAllLocations.length > 0) {
+            this.props.searchFilterAction({ locationFilterOptions: data.getAllLocations })
+        } else if (error) {
+            console.error(`hmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+        } else {
+            console.error(`hmmm... \nlooks like something went wrong.`)
+        }
+        this.loading(false)
     }
 
     render() {
@@ -225,7 +302,7 @@ class Location extends Component {
                             </div>
 
                             <div className='col even-space' style={{ width: '65%' }}>
-                                <button style={{ width: '100%', margin: '50px 0', borderWidth: 2 }} onClick={() => alert("click test")} >
+                                <button style={{ width: '100%', margin: '50px 0', borderWidth: 2 }} onClick={() => this.updateLocation()} >
                                     update location
                                 </button>
                             </div>
@@ -234,6 +311,10 @@ class Location extends Component {
                         <div className='col even-space border' style={{ padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::new location::</h2>
                             <div className='separator'></div>
+
+                            <h3 className='col even-space' style={{ textAlign: 'center' }}>
+                                {this.state.validatorMsg}
+                            </h3>
 
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
@@ -307,7 +388,7 @@ class Location extends Component {
                             </div>
 
                             <div className='col even-space' style={{ width: '65%' }}>
-                                <button style={{ width: '100%', margin: '50px 0', borderWidth: 2 }} onClick={() => alert("click test")} >
+                                <button style={{ width: '100%', margin: '50px 0', borderWidth: 2 }} onClick={() => this.addLocation()} >
                                     add location
                                 </button>
                             </div>
@@ -330,6 +411,7 @@ function mapDispatchToProps(dispatch) {
     return {
         sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
         alertAction: bindActionCreators(alertAction, dispatch),
+        searchFilterAction: bindActionCreators(searchFilterAction, dispatch),
     }
 }
 

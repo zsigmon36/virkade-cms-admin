@@ -47,6 +47,10 @@ export const DatabaseAPI = {
         let query = GraphQLMutationParamStrings.addUserLegalDoc(userObj.username, legalTypeCode, agree)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    addUpdateLocation: function (userObj, fields, callback) {
+        let query = GraphQLMutationParamStrings.addUpdateLocation(fields)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
 
     //Queries 
     getUserByUserName: function (userObj, callBack) {
