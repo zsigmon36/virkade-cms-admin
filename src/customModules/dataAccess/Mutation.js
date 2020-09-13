@@ -160,8 +160,8 @@ export const GraphQLMutationParamStrings = {
         //2020-05-30 02:30:57.311
         let curDate = new Date()
         let expYear = curDate.getFullYear() + 1
-        let activeDate = `${curDate.getFullYear()}-${curDate.getMonth()+1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
-        let expireDate = `${expYear}-${curDate.getMonth()+1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
+        let activeDate = `${curDate.getFullYear()}-${curDate.getMonth() + 1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
+        let expireDate = `${expYear}-${curDate.getMonth() + 1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
 
         let query = `${DataConstants.MUTATION}{${DataConstants.ADD_USER_LEGAL_DOC}
             (   
@@ -199,7 +199,7 @@ export const GraphQLMutationParamStrings = {
         return query; //.replace(/\s/g, '');
     },
     addUserSession: function (userObj, session) {
-        
+
         let query = `${DataConstants.MUTATION} { ${DataConstants.ADD_USER_SESSION}
             (
                 ${DataConstants.INPUT_PLAY_SESSION}: {
@@ -221,18 +221,19 @@ export const GraphQLMutationParamStrings = {
         let query = `${DataConstants.MUTATION} { ${DataConstants.ADD_UPDATE_LOCATION}
                 (
                     ${DataConstants.INPUT_LOCATION}: {
-                        ${DataConstants.LOCATION_ID}:${fields.selLocationFilter?fields.selLocationFilter:0},
+                        ${DataConstants.LOCATION_ID}:${fields.selLocationFilter ? fields.selLocationFilter : 0},
                         ${DataConstants.TAX_RATE}:${fields.locationTaxRate},
                         ${DataConstants.LOCATION_NAME}:"${fields.locationName}",
                         ${DataConstants.DESCRIPTION}:"${fields.locationDescription}",
                         ${DataConstants.PHONE_NUM}:"${fields.locationPhoneNum}",
                         ${DataConstants.MANAGER}:"${fields.locationManager}",
-                        ${DataConstants.STATE_ID}:${fields.locationSelState?fields.locationSelState:0},
+                        ${DataConstants.STATE_ID}:${fields.locationSelState ? fields.locationSelState : 0},
                         ${DataConstants.STREET}:"${fields.locationStreet}",
                         ${fields.locationUnit.length > 0 ? `${DataConstants.UNIT}:"${fields.locationUnit}",` : ""}
                         ${fields.locationApt.length > 0 ? `${DataConstants.APT}:"${fields.locationApt}",` : ""}
                         ${DataConstants.CITY}:"${fields.locationCity}",
-                        ${DataConstants.POSTAL_CODE}:"${fields.locationZip}"
+                        ${DataConstants.POSTAL_CODE}:"${fields.locationZip}",
+                        ${DataConstants.ENABLED}:${fields.locationEnabled}
                     }
                 )
             {
@@ -246,11 +247,42 @@ export const GraphQLMutationParamStrings = {
                     }
                     ${DataConstants.POSTAL_CODE}
                 }
+                ${DataConstants.LOCATION_ID}
                 ${DataConstants.LOCATION_NAME}
                 ${DataConstants.TAX_RATE}
                 ${DataConstants.DESCRIPTION}
                 ${DataConstants.PHONE_NUM}
                 ${DataConstants.MANAGER}
+                ${DataConstants.ENABLED}
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
+    addUpdateActivity: function (fields) {
+        let query = `${DataConstants.MUTATION} { ${DataConstants.ADD_UPDATE_ACTIVITY}
+                (
+                    ${DataConstants.INPUT_ACTIVITY}: {
+                        ${DataConstants.ACTIVITY_ID}:${fields.selActivityFilter ? fields.selActivityFilter : 0},
+                        ${DataConstants.ACTIVITY_NAME}:"${fields.activityName}",
+                        ${DataConstants.DESCRIPTION}:"${fields.activityDescription}",
+                        ${DataConstants.WEBSITE}:"${fields.activityWebsite}",
+                        ${DataConstants.SUPPORT_CONTACT}:"${fields.activitySupportContact}",
+                        ${DataConstants.COST_PER_MIN}:${fields.activityCostPerMin ? fields.activityCostPerMin : 0},
+                        ${DataConstants.SETUP_MINUTES}:${fields.activitySetupMin ? fields.activitySetupMin : 0},
+                        ${DataConstants.CREATOR}:"${fields.activityCreator}",
+                        ${DataConstants.ENABLED}:${fields.activityEnabled}
+                    }
+                )
+            {
+                ${DataConstants.ACTIVITY_ID}
+                ${DataConstants.ACTIVITY_NAME}
+                ${DataConstants.DESCRIPTION}
+                ${DataConstants.WEBSITE}
+                ${DataConstants.SUPPORT_CONTACT}
+                ${DataConstants.COST_PER_MIN}
+                ${DataConstants.SETUP_MINUTES}
+                ${DataConstants.CREATOR}
+                ${DataConstants.ENABLED}
             }
         }`
         return query; //.replace(/\s/g, '');

@@ -107,6 +107,21 @@ export const GraphQLQueryParamStrings = {
             ${DataConstants.DESCRIPTION}
             ${DataConstants.PHONE_NUM}
             ${DataConstants.MANAGER}
+            ${DataConstants.ENABLED}
+        }}`
+        return query;
+    },
+    getActivity: function (activityId) {
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_ACTIVITY} ( ${DataConstants.ACTIVITY_ID}: ${activityId} ) {
+            ${DataConstants.ACTIVITY_ID}
+            ${DataConstants.ACTIVITY_NAME}
+            ${DataConstants.DESCRIPTION}
+            ${DataConstants.WEBSITE}
+            ${DataConstants.SUPPORT_CONTACT}
+            ${DataConstants.COST_PER_MIN}
+            ${DataConstants.SETUP_MINUTES}
+            ${DataConstants.CREATOR}
+            ${DataConstants.ENABLED}
         }}`
         return query;
     },

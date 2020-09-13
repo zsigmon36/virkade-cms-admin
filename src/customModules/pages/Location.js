@@ -24,6 +24,7 @@ const defaultLocalState = {
     locationTaxRate: "",
     locationUnit: "",
     locationZip: "",
+    locationEnabled: false,
 }
 
 class Location extends Component {
@@ -63,7 +64,7 @@ class Location extends Component {
     }
 
     validateInput(data, isAlert = true) {
-        let { locationDescription, locationPhoneNum, locationManager, locationTaxRate, locationZip, locationName, locationCity, locationStreet, locationSelState } = data;
+        let { locationDescription, locationPhoneNum, locationManager, locationTaxRate, locationZip, locationName, locationCity, locationStreet, locationSelState, locationEnabled } = data;
         let msg = '';
         let valid = true
 
@@ -93,6 +94,9 @@ class Location extends Component {
             valid = false;
         } else if (locationSelState !== undefined && locationSelState === "0") {
             msg = 'must select a state'
+            valid = false;
+        } else if (locationEnabled !== undefined && (locationEnabled === "" || !validator.isBoolean(locationEnabled.toString()))){
+            msg = 'enabled must be a boolean'
             valid = false;
         }
         this.setState({ validatorMsg: msg })
@@ -128,6 +132,11 @@ class Location extends Component {
     updateInput(event) {
         let key = event.target.name
         let value = event.target.value
+        if (value === '[ ]'){
+            value = true;
+        } else if (value === '[X]') {
+            value = false;
+        }
         this.setState({ [key]: value })
         this.validateInput({ [key]: value }, false)
         if (key === 'selLocationFilter') {
@@ -150,6 +159,7 @@ class Location extends Component {
             newState.locationUnit = location.address.unit || ''
             newState.locationZip = location.address.postalCode
             newState.locationSelState = location.address.state.stateId
+            newState.locationEnabled = location.enabled
         } else {
             newState = Object.assign({}, defaultLocalState);
             newState.pickerStates = this.state.pickerStates
@@ -300,6 +310,12 @@ class Location extends Component {
                                     <input autoComplete='off' type="text" id="location-zip" name="locationZip" value={this.state.locationZip} onChange={this.updateInput} />
                                 </div>
                             </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationEnabled">enabled:</label>
+                                    <input autoComplete='off' className='checkBox' type="text" id="location-enabled" name="locationEnabled" value={this.state.locationEnabled ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly/>
+                                </div>
+                            </div>
 
                             <div className='col even-space' style={{ width: '65%' }}>
                                 <button style={{ width: '100%', margin: '50px 0', borderWidth: 2 }} onClick={() => this.updateLocation()} >
@@ -384,6 +400,12 @@ class Location extends Component {
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="locationZip">zip:</label>
                                     <input autoComplete='off' type="text" id="location-zip" name="locationZip" value={this.state.locationZip} onChange={this.updateInput} />
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="locationEnabled">enabled:</label>
+                                    <input autoComplete='off' className='checkBox' type="text" id="location-enabled" name="locationEnabled" value={this.state.locationEnabled ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly/>
                                 </div>
                             </div>
 

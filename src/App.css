@@ -212,8 +212,13 @@ select:active {
 .hyperlink {
   border: none;
   margin: 5px;
-  flex: 0;
   text-decoration: underline;
+}
+input[type='checkbox'], .checkBox {
+  font-size: 26px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
 }
 .center {
   justify-content: center;

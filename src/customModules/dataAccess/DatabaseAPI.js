@@ -51,6 +51,10 @@ export const DatabaseAPI = {
         let query = GraphQLMutationParamStrings.addUpdateLocation(fields)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    addUpdateActivity: function (userObj, fields, callback) {
+        let query = GraphQLMutationParamStrings.addUpdateActivity(fields)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
 
     //Queries 
     getUserByUserName: function (userObj, callBack) {
@@ -75,6 +79,10 @@ export const DatabaseAPI = {
     },
     getLocation: function (userObj, id, callback) {
         let query = GraphQLQueryParamStrings.getLocation(id)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    getActivity: function (userObj, id, callback) {
+        let query = GraphQLQueryParamStrings.getActivity(id)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     getSecurityQ: function (username, callback) {
