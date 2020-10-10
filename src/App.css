@@ -72,18 +72,21 @@ h1 {
       font-size: 32px;
       align-self: center;
       font-family: terminus-bold;
+      text-align: center;
       flex: 1;
   }
 h2 {
       font-size: 28px;  
       align-self: center;
       font-family: terminus-bold;
+      text-align: center;
       flex: 1;
   }
 h3 {
       font-size: 22px;
       align-self: center;
       font-family: terminus-bold;
+      text-align: center;
       flex: 1;
   }
 .checkBox {
@@ -96,11 +99,10 @@ h3 {
       border-width: 1;
   }
 .infoCard {
-      height: 300;
-      border-color: #9fff80;
-      border-width: 1;
-      margin-top: 10;
-      margin-bottom: 10
+  min-height: 100px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 5px;
   }
 .center {
       align-self: center;
@@ -119,11 +121,11 @@ h3 {
     align-items: center;
     flex-direction: column;
     justify-content: center;
-    margin: 0 3px;
 }
 .even-space {
   flex: 1
 }
+
 label, .label {
       font-size: 18px;
       margin: 5px
@@ -165,7 +167,7 @@ a {
   }
 button {
       margin: 10px;
-      width: 150px;
+      min-width: 125px;
       border-color: #9fff80;
       color: #9fff80;
       background-color: #001a00;
@@ -187,7 +189,6 @@ button {
     font-family: terminus-bold;
   }
   select {
-    min-width: 200px;
     margin: 10px;
     padding-left: 10px;
     padding-right: 10px;

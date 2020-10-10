@@ -65,6 +65,89 @@ export const GraphQLQueryParamStrings = {
         return query; //.replace(/\s/g, '');
 
     },
+    getAllFieldsUserById: function (userId) {
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_USER_BY_ID}
+            (
+                ${DataConstants.USERID}:"${userId}",
+            ){
+                ${DataConstants.USERID}
+                ${DataConstants.USERNAME} 
+                ${DataConstants.TYPE} {
+                    ${DataConstants.CODE}
+                    ${DataConstants.NAME}
+                }
+                ${DataConstants.ADDRESS}{
+                    ${DataConstants.STATE} {
+                        ${DataConstants.STATE_CODE}
+                        ${DataConstants.STATE_ID}
+                        ${DataConstants.NAME}
+                    }
+                    ${DataConstants.TYPE}{
+                        ${DataConstants.CODE}
+                        ${DataConstants.NAME}
+                    }
+                    ${DataConstants.STREET}
+                    ${DataConstants.UNIT}
+                    ${DataConstants.APT}
+                    ${DataConstants.CITY}
+                    ${DataConstants.POSTAL_CODE}
+                }
+                ${DataConstants.STATUS} {
+                    ${DataConstants.STATUSID}
+                    ${DataConstants.NAME}
+                }
+                ${DataConstants.EMAILADDRESS}
+                ${DataConstants.PHONE_NUMBERS} {
+                    ${DataConstants.NUMBER}
+                    ${DataConstants.PHONE_COUNTRY_CODE}
+                    ${DataConstants.TYPE} {
+                        ${DataConstants.CODE}
+                        ${DataConstants.NAME}
+                    }
+                }
+                ${DataConstants.SECURITYQ}
+                ${DataConstants.FIRST_NAME}
+                ${DataConstants.LAST_NAME}
+                ${DataConstants.GENDER}
+                ${DataConstants.AGE}
+                ${DataConstants.HEIGHT}
+                ${DataConstants.WEIGHT}
+                ${DataConstants.IDP}
+                ${DataConstants.EMAIL_VERIFIED}
+                ${DataConstants.PLAYED_BEFORE}
+                ${DataConstants.REAL_ESTATE_SERVICE}
+                ${DataConstants.CAN_CONTACT}
+                ${DataConstants.LIABLE_AGREE}
+                ${DataConstants.TC_AGREE}
+                ${DataConstants.COMMENTS} {
+                    ${DataConstants.COMMENT_CONTENT}
+                    ${DataConstants.TYPE} {
+                        ${DataConstants.NAME}
+                        ${DataConstants.CODE}
+                    }
+                    ${DataConstants.AUDIT} {
+                        ${DataConstants.CREATED_AT}
+                    }
+                }
+                ${DataConstants.SESSIONS} {
+                    ${DataConstants.SESSIONID}
+                        ${DataConstants.LOCATION} {
+                        ${DataConstants.NAME}
+                        ${DataConstants.LOCATION_ID}
+                    }
+                    ${DataConstants.PAYED}
+                        ${DataConstants.ACTIVITY} {
+                        ${DataConstants.NAME}
+                        ${DataConstants.ACTIVITY_ID}
+                    }
+                    ${DataConstants.START_DATE}
+                    ${DataConstants.END_DATE}    
+                }
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+
+    },
     getAllStates: function () {
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_ALL_STATES}
             {

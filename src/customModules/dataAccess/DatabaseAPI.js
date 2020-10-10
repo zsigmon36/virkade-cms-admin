@@ -65,6 +65,10 @@ export const DatabaseAPI = {
         let query = GraphQLQueryParamStrings.getAllFieldsUserByUserName(userObj.username)
         return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
+    getAllFieldsUserById: function (userObj, userId, callBack) {
+        let query = GraphQLQueryParamStrings.getAllFieldsUserById(userId)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
+    },
     getAllStates: function (userObj, callback) {
         let query = GraphQLQueryParamStrings.getAllStates()
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)

@@ -121,7 +121,7 @@ class Login extends Component {
                 <div className="modal-overlay">
                     <div className="modal">
                         <div className="main">
-                            <button className="close-icon" onClick={() => this.props.sharedFlagsAction({ showLogin: false })}>X</button>
+                            <button className="close-icon" style={{"minWidth": "unset" }} onClick={() => this.props.sharedFlagsAction({ showLogin: false })}>X</button>
                             <div className="row" style={{ alignSelf: "center" }}>
                                 <h1 style={{ margin: "5px" }}>::sign in::</h1>
                             </div>
@@ -137,7 +137,7 @@ class Login extends Component {
                                 <p className="label">password:</p>
                                 <input className="input" name="password" type={this.state.isSecurity ? "password" : "text"}
                                     onChange={this.updateInput} value={this.props.user.password} />
-                                <button className="hyperlink" onClick={() => this.toggleShowPw()}>
+                                <button className="hyperlink" style={{"minWidth": "unset" }} onClick={() => this.toggleShowPw()}>
                                     {this.state.pwToggleMsg}
                                 </button>
                             </div>
