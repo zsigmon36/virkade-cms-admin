@@ -166,21 +166,21 @@ class Header extends Component {
     if (pathname === ROUTES.USER_PAGE) {
       buttonHtml.push(
         <div key="2" className='col'>
-          <button onClick={() => alert("click test")} >
+          <button onClick={() => this.props.curModule.addComment()} >
             add note
           </button>
         </div>
       )
       buttonHtml.push(
         <div key="3" className='col'>
-          <button onClick={() => alert("click test")} >
+          <button onClick={() => this.props.curModule.addSession()} >
             add session
           </button>
         </div>
       )
       buttonHtml.push(
         <div key="4" className='col'>
-          <button onClick={() => alert("click test")} >
+          <button onClick={() => this.props.curModule.addUserPhone()} >
             update user
           </button>
         </div>

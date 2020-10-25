@@ -55,8 +55,8 @@ export const GraphQLMutationParamStrings = {
         let query = `${DataConstants.MUTATION}{${DataConstants.UPDATE_USER}
             (   
                 ${DataConstants.INPUT_USER}:{
-                    ${DataConstants.USERID}:${userObj.userId},
-                    ${DataConstants.TYPE_CODE}:"${userObj.userTypeCode}",
+                    ${DataConstants.USERID}:${userObj.selUserId},
+                    ${DataConstants.TYPE_CODE}:"${userObj.typeCode}",
                     ${DataConstants.STATUSID}:${userObj.statusId},
                     ${DataConstants.EMAILADDRESS}:"${userObj.emailAddress}",
                     ${DataConstants.USERNAME}:"${userObj.username}",
@@ -72,9 +72,23 @@ export const GraphQLMutationParamStrings = {
                     ${DataConstants.IDP}:${parseFloat(userObj.idp)},
                     ${DataConstants.EMAIL_VERIFIED}:${userObj.emailVerified},
                     ${DataConstants.PLAYED_BEFORE}:${userObj.playedBefore},
+                    ${DataConstants.TC_AGREE}:${userObj.tcAgree},
+                    ${DataConstants.LIABLE_AGREE}:${userObj.liableAgree},
                     ${DataConstants.REAL_ESTATE_SERVICE}:${userObj.reServices},
                     ${DataConstants.CAN_CONTACT}:${userObj.canContact},
                 }
+            ){
+                ${DataConstants.USERNAME} 
+                ${DataConstants.USERID}
+            }}`
+        return query; //.replace(/\s/g, '');
+
+    },
+    updateUserType: function (userObj) {
+        let query = `${DataConstants.MUTATION}{${DataConstants.UPDATE_USER_TYPE}
+            (   
+                ${DataConstants.USERID}:${userObj.selUserId},
+                ${DataConstants.TYPE_CODE}:"${userObj.typeCode}",
             ){
                 ${DataConstants.USERNAME} 
                 ${DataConstants.USERID}
@@ -88,7 +102,7 @@ export const GraphQLMutationParamStrings = {
         let apt = userObj.apt;
         let street = userObj.street;
         let city = userObj.street;
-        let state = userObj.state
+        let state = userObj.selState
         let postalCode = userObj.postalCode
 
         if (unit === undefined) {
@@ -104,7 +118,7 @@ export const GraphQLMutationParamStrings = {
             city = ''
         }
         if (state === undefined) {
-            state = ''
+            state = 0
         }
         if (postalCode === undefined) {
             postalCode = ''
@@ -112,8 +126,9 @@ export const GraphQLMutationParamStrings = {
 
         let query = `${DataConstants.MUTATION}{${DataConstants.CREATE_USER_ADDRESS}
             (   
+                ${DataConstants.USERID}:${userObj.userId},
                 ${DataConstants.INPUT_ADDRESS}:{
-                    ${DataConstants.STATE_CODE}:"${state}",
+                    ${DataConstants.STATE_ID}:${state},
                     ${DataConstants.TYPE_CODE}:"${userObj.addressTypeCode}",
                     ${DataConstants.STREET}:"${street}",
                     ${DataConstants.UNIT}:"${unit}",
@@ -131,9 +146,9 @@ export const GraphQLMutationParamStrings = {
             (   
                 ${DataConstants.INPUT_PHONE}:{
                     ${DataConstants.USERNAME}:"${userObj.username}",
-                    ${DataConstants.TYPE_CODE}:"${userObj.phoneType}",
-                    ${DataConstants.PHONE_COUNTRY_CODE}:${userObj.phoneCountryCode},
-                    ${DataConstants.NUMBER}:"${userObj.phoneNumber}",
+                    ${DataConstants.TYPE_CODE}:"${userObj.phoneTypeCode}",
+                    ${DataConstants.PHONE_COUNTRY_CODE}:${userObj.countryCode},
+                    ${DataConstants.NUMBER}:"${userObj.number}",
                 }
             ){
                     ${DataConstants.PHONEID} 

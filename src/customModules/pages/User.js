@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Header from './fragments/Header.js'
+import ConfirmationModal from './fragments/ConfirmationModal.js'
 import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
 import searchFilterAction from '../reduxActions/SearchFilterAction.js'
 import { bindActionCreators } from 'redux';
@@ -22,12 +23,13 @@ const defaultLocalState = {
     password: '',
     emailAddress: '',
     type: '',
+    typeCode: '',
     gender: '',
-    age: '',
-    heightFt: '',
-    heightIn: '',
-    weight: '',
-    idp: '',
+    age: 0,
+    heightFt: 0,
+    heightIn: 0,
+    weight: 0,
+    idp: 0,
     securityQuestion: '',
     securityAnswer: '',
     emailVerified: false,
@@ -36,9 +38,12 @@ const defaultLocalState = {
     canContact: false,
     liableAgree: false,
     tcAgree: false,
-    status: '',
+    statusId: 0,
+
     generalComments: [],
     conditions: [],
+    commentType: DataConstants.GENERAL_COMMENT_TYPE_CODE,
+    commentContent: "",
 
     selState: 0,
     street: '',
@@ -46,9 +51,17 @@ const defaultLocalState = {
     apt: '',
     city: '',
     postalCode: '',
-
+    addressTypeCode: DataConstants.PHYSICAL_ADDRESS_TYPE_CODE,
+    
     number: '',
-    countryCode: '',
+    countryCode: 0,
+    phoneTypeCode: DataConstants.MOBILE_PHONE_TYPE_CODE,
+
+    modalIsOpen: false, 
+    modalTitle: undefined, 
+    modalBody: undefined, 
+    modalOnClose: () => {return true}, 
+    modalOnSubmit: () => {return true}
 }
 
 class User extends Component {
@@ -56,11 +69,18 @@ class User extends Component {
     constructor(props) {
         super(props)
         this.updateInput = this.updateInput.bind(this);
+        this.updateUser = this.updateUser.bind(this);
+        this.addUserPhone = this.addUserPhone.bind(this);
+        this.addUserAddress = this.addUserAddress.bind(this);
         this.setUserDetails = this.setUserDetails.bind(this);
         this.setPickerSates = this.setPickerSates.bind(this);
         this.confirmationAlert = this.confirmationAlert.bind(this);
         this.filterOptionsCallback = this.filterOptionsCallback.bind(this);
         this.setSessionRows = this.setSessionRows.bind(this);
+        this.demotePromote = this.demotePromote.bind(this);
+        this.addSession = this.addSession.bind(this);
+        this.addComment = this.addComment.bind(this);
+        this.closeModal = this.closeModal.bind(this);
         this.state = Object.assign({}, defaultLocalState);
     }
 
@@ -79,6 +99,12 @@ class User extends Component {
             this.updateInput(event)
         }
         DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
+    }
+
+    addSession(){
+        this.props.location.search = `?userId=${this.state.selUserId}`
+        this.props.location.pathname = ROUTES.SESSION_PAGE
+        this.props.history.push(this.props.location);
     }
 
     setSessionRows(data) {
@@ -192,7 +218,7 @@ class User extends Component {
         } else if (securityQuestion !== undefined && securityQuestion === "") {
             msg = 'security question cannot be empty'
             isValid = false;
-        } 
+        }
         this.setState({ validatorMsg: msg })
 
         if (isAlert && !isValid) {
@@ -232,7 +258,7 @@ class User extends Component {
     }
 
     setUserDetails(data, error) {
-       
+
         if (data && data.getUserById) {
             let newState = Object.assign({}, this.state);
             let user = data.getUserById
@@ -240,37 +266,42 @@ class User extends Component {
             let comments = user.comments
             if (user) {
                 Object.entries(user).forEach(([key, value]) => {
-                    switch (key) {
-                        case 'address':
-                            newState.selState = value.state.stateId
-                            newState.street = value.street
-                            newState.unit = value.unit
-                            newState.apt = value.apt
-                            newState.city = value.city
-                            newState.postalCode = value.postalCode
-                            break
-                        case 'phoneNumbers':
-                            newState.countryCode = value[0].countryCode
-                            newState.number = value[0].number
-                            break
-                        case 'type':
-                            newState.type = value.name
-                            break
-                        case 'status':
-                            newState.status = value.name
-                            break
-                        case 'comments':
-                            break
-                        case 'sessions':
-                            break
-                        case 'height':
-                            let heightFt = Math.floor(value / 12)
-                            let heightIn = value % 12
-                            newState.heightFt = String(heightFt)
-                            newState.heightIn = String(heightIn)
-                            break
-                        default:
-                            newState[key] = value;
+                    if (value) {
+                        switch (key) {
+                            case 'address':
+                                newState.selState = value.state && value.state.stateId
+                                newState.street = value.street
+                                newState.unit = value.unit
+                                newState.apt = value.apt
+                                newState.city = value.city
+                                newState.postalCode = value.postalCode
+                                break
+                            case 'phoneNumbers':
+                                if (value.length > 0) {
+                                    newState.countryCode = value[0].countryCode
+                                    newState.number = value[0].number
+                                }
+                                break
+                            case 'type':
+                                newState.type = value.name
+                                newState.typeCode = value.code
+                                break
+                            case 'status':
+                                newState.statusId = value.statusId
+                                break
+                            case 'comments':
+                                break
+                            case 'sessions':
+                                break
+                            case 'height':
+                                let heightFt = Math.floor(value / 12)
+                                let heightIn = value % 12
+                                newState.heightFt = heightFt
+                                newState.heightIn = heightIn
+                                break
+                            default:
+                                newState[key] = value;
+                        }
                     }
                 })
             } else {
@@ -290,7 +321,7 @@ class User extends Component {
     }
 
     setComments(data) {
-       
+
         let conditions = [];
         let generalComments = [];
 
@@ -311,38 +342,108 @@ class User extends Component {
         this.setState({ 'conditions': conditions })
     }
 
-    addUser() {
-        if (this.validateInput(this.state)) {
-            let curState = Object.assign({}, this.state);
-            curState.selActivityFilter = 0;
-            DatabaseAPI.addUpdateActivity(this.props.user, curState, this.confirmationAlert)
+    addComment(){
+        this.setState({ 
+            modalTitle: '::complete the coment details::',
+            modalBody:
+            <div className='col'>
+                <div className='row even-space' style={{ width: '100%' }}>
+                    <div className='row' style={{ width: '100%' }}>
+                        <label htmlFor="commentType" >comment type:</label>
+                        <select id='comment-type'
+                            style={{ 'flexGrow': 1 }}
+                            name="commentType"
+                            onChange={this.updateInput}>
+                            <option id={0} value={DataConstants.GENERAL_COMMENT_TYPE_CODE}>general notes</option>
+                            <option id={1} value={DataConstants.CONDITIONS_COMMENT_TYPE_CODE}>conditions</option>
+                         </select>
+                    </div>
+                </div>
+                <div className='row even-space' style={{ width: '100%' }}>
+                    <h3>:comment content:</h3>
+                </div>
+                <div className='row even-space' style={{ width: '100%' }} >
+                    <textarea style={{ width: '100%' }} type='text' autoComplete='off' id="comment-content" name="commentContent" onChange={this.updateInput} required></textarea>
+                </div>
+            </div>
+            ,
+            modalOnSubmit: () => DatabaseAPI.addUserComment(this.props.user, this.state, this.confirmationAlert),
+            modalOnClose: this.closeModal,
+            modalIsOpen: true
+        });
+    }
+
+    closeModal(){
+        this.setState({modalIsOpen:false})
+    }
+
+    demotePromote() {
+        let user = Object.assign({}, this.state);
+        if (this.state.typeCode === DataConstants.CUST_USER_TYPE_CODE) {
+            user.typeCode = DataConstants.ADMIN_USER_TYPE_CODE
+        } else {
+            user.typeCode = DataConstants.CUST_USER_TYPE_CODE
         }
+        DatabaseAPI.updateUserType(this.props.user, user, this.confirmationAlert)
     }
 
     updateUser() {
-        if (this.validateInput(this.state) && this.state.selActivityFilter && this.state.selActivityFilter > 0) {
-            DatabaseAPI.addUpdateActivity(this.props.user, this.state, this.confirmationAlert)
-        } else if (!this.state.selActivityFilter || this.state.selActivityFilter === 0) {
+        let user = Object.assign({}, this.state);
+        if (this.validateInput(user) && user.selUserId && user.selUserId > 0) {
+            DatabaseAPI.updateUser(this.props.user, user, this.confirmationAlert)
+        } else if (!user.selUserId || user.selUserId === 0) {
             this.props.alertAction({ type: 'error' })
-            this.props.alertAction({ msg: 'update requires a selected activity' })
+            this.props.alertAction({ msg: 'update requires a selected user' })
             this.props.sharedFlagsAction({ alertOpen: true });
         }
     }
 
+    addUserPhone() {
+        let user = Object.assign({}, this.state);
+        if (this.validateInput(this.state) && (user.selUserId && user.selUserId > 0) && (user.number.length > 0 || user.countryCode > 0)) {
+            DatabaseAPI.addUserPhone(this.props.user, user, this.addUserAddress)
+        } else {
+            this.addUserAddress()
+        }
+    }
+
+    addUserAddress() {
+        let user = Object.assign({}, this.state);
+        if (this.validateInput(this.state) && (user.selUserId && user.selUserId > 0) && (user.selState > 0 || user.street.length > 0 || user.city.length > 0 || user.postalCode.length > 0)) {
+            DatabaseAPI.addUserAddress(this.props.user, user, this.updateUser)
+        } else {
+            this.updateUser()
+        }
+
+    }
+
     confirmationAlert(data, error) {
-        if (data && (data.addUpdateActivity)) {
+        if (data && (data.updateUser)) {
             this.props.alertAction({ type: 'info' })
-            this.props.alertAction({ msg: "activity saved successfully" })
+            this.props.alertAction({ msg: "user updated successfully" })
             this.props.sharedFlagsAction({ alertOpen: true });
-            DatabaseAPI.getAllActivities(this.props.user, this.filterOptionsCallback)
+            DatabaseAPI.getAllFieldsUserById(this.props.user, data.updateUser.userId, this.setUserDetails)
+        } else if (data && (data.updateUserType)) {
+            this.props.alertAction({ type: 'info' })
+            this.props.alertAction({ msg: "user type updated successfully" })
+            this.props.sharedFlagsAction({ alertOpen: true });
+            DatabaseAPI.getAllFieldsUserById(this.props.user, data.updateUserType.userId, this.setUserDetails)
+        } else if (data && data.addComment){
+            this.closeModal()
+            this.props.alertAction({ type: 'info' })
+            this.props.alertAction({ msg: "comment added successfully" })
+            this.props.sharedFlagsAction({ alertOpen: true });
+            DatabaseAPI.getAllFieldsUserById(this.props.user, data.addComment.userId, this.setUserDetails)
         } else if (error) {
             this.props.alertAction({ type: 'error' })
             this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong. \n${error[0].message}` })
             this.props.sharedFlagsAction({ alertOpen: true });
+            this.closeModal()
         } else {
             this.props.alertAction({ type: 'error' })
             this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong.` })
             this.props.sharedFlagsAction({ alertOpen: true });
+            this.closeModal()
         }
     }
 
@@ -359,17 +460,21 @@ class User extends Component {
     render() {
         return (
             <div className='wrapper'>
-                <Header history={this.props.history} />
+                <Header history={this.props.history} curModule={this} />
+                <ConfirmationModal isOpen={this.state.modalIsOpen} title={this.state.modalTitle} body={this.state.modalBody}  onClose={this.state.modalOnClose} parentState={this.state} onSubmit={this.state.modalOnSubmit} />
                 <div className='section'>
                     < div className='row'>
                         <div className='col border' style={{ flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::user details::</h2>
                             <div className='separator'></div>
 
+                            <div className='row even-space' style={{ maxWidth: 400 }}>
+                                {this.state.validatorMsg}
+                            </div>
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="username" >user name:</label>
-                                    <input autoComplete='off' type="text" id="username" name="username" onChange={this.updateInput} value={this.state.username} readOnly/>
+                                    <input autoComplete='off' type="text" id="username" name="username" onChange={this.updateInput} value={this.state.username} readOnly />
                                 </div>
                             </div>
 
@@ -432,20 +537,24 @@ class User extends Component {
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="age" >age:</label>
-                                    <input autoComplete='off' type="text" id="age" name="age" onChange={this.updateInput} value={String(this.state.age)} />
+                                    <input autoComplete='off' type="text" id="age" name="age" onChange={this.updateInput} value={this.state.age} />
                                 </div>
                             </div>
 
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="heightFt" >height:</label>
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
                                     <select
                                         name="heightFt"
                                         id="height-ft"
                                         style={{ 'flexGrow': 1 }}
                                         value={this.state.heightFt}
                                         onChange={this.updateInput}>
-                                        <option key={0} id={0} value="0">sel foot</option>
+                                        <option key={0} id={0} value={0}>sel foot</option>
                                         {
                                             (pickerData.heightFt).map((item, index) => {
                                                 return <option key={index + 1} id={index + 1} value={item.value} >{item.label}</option>
@@ -458,7 +567,7 @@ class User extends Component {
                                         style={{ 'flexGrow': 1 }}
                                         value={this.state.heightIn}
                                         onChange={this.updateInput}>
-                                        <option key={0} id={0} label="sel inch" value="0" ></option>
+                                        <option key={0} id={0} label="sel inch" value={0} ></option>
                                         {
                                             (pickerData.heightIn).map((item, index) => {
                                                 return <option key={index + 1} id={index + 1} value={item.value} >{item.label}</option>
@@ -471,7 +580,7 @@ class User extends Component {
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="weight" >weight:</label>
-                                    <input autoComplete='off' type="text" id="weight" name="weight" onChange={this.updateInput} value={String(this.state.weight)} />
+                                    <input autoComplete='off' type="text" id="weight" name="weight" onChange={this.updateInput} value={this.state.weight} />
                                 </div>
                             </div>
 
@@ -482,9 +591,9 @@ class User extends Component {
                                         name="idp"
                                         id="idp"
                                         style={{ 'flexGrow': 1 }}
-                                        value={String(this.state.idp)}
+                                        value={this.state.idp}
                                         onChange={this.updateInput}>
-                                        <option key={0} id={0} label="select" value="0.0" ></option>
+                                        <option key={0} id={0} label="select" value={0.0} ></option>
                                         {
                                             (pickerData.idp).map((item, index) => {
                                                 return <option key={index + 1} id={index + 1} value={item.value} >{item.label}</option>
@@ -496,15 +605,14 @@ class User extends Component {
 
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
-                                    {this.state.validatorMsg}
-                                </div>
-                            </div>
-
-                            <div className='row even-space' style={{ width: '65%' }}>
-                                <div className='row' style={{ width: '100%' }}>
                                     <h3>::physical address::</h3>
                                 </div>
                             </div>
+
+                            <div className='row even-space' style={{ maxWidth: 400 }}>
+                                {this.state.validatorMsg}
+                            </div>
+
 
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
@@ -558,14 +666,12 @@ class User extends Component {
 
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <label>{this.state.validatorMsg}</label>
+                                    <h3>::mobile phone number::</h3>
                                 </div>
                             </div>
 
-                            <div className='row even-space' style={{ width: '65%' }}>
-                                <div className='row' style={{ width: '100%' }}>
-                                    <h3>::mobile phone number::</h3>
-                                </div>
+                            <div className='row even-space' style={{ maxWidth: 400 }}>
+                                {this.state.validatorMsg}
                             </div>
 
                             <div className='row even-space' style={{ width: '65%' }}>
@@ -577,15 +683,15 @@ class User extends Component {
                                         value={this.state.countryCode}
                                         onChange={this.updateInput}
                                     >
-                                        <option key={0} id={0} label="select" value='0' ></option>
+                                        <option key={0} id={0} label="select" value={0} ></option>
                                         {
                                             (pickerData.phoneCountries).map((item, index) => {
                                                 return <option key={index + 1} id={index + 1} value={item.value} >{item.label}</option>
                                             })
                                         }
                                     </select>
-                                    <label htmlFor="phoneNumber" >number:</label>
-                                    <input style={{ 'width': 'inherit'}} autoComplete='off' type="text" id="phone-number" name="phoneNumber" onChange={this.updateInput} value={this.state.number} />
+                                    <label htmlFor="number" >number:</label>
+                                    <input style={{ 'width': 'inherit' }} autoComplete='off' type="text" id="phone-number" name="number" onChange={this.updateInput} value={this.state.number} />
                                 </div>
                             </div>
 
@@ -595,20 +701,88 @@ class User extends Component {
                                 </div>
                             </div>
 
+                            <div className='row even-space' style={{ maxWidth: 400 }}>
+                                {this.state.validatorMsg}
+                            </div>
+
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <label style={{'width': 300}} htmlFor="reServices">interested in VR real estate services?</label>
-                                    <input style={{'width': 50}} autoComplete='off' className="checkBox" type="text" id="re-services" name="reServices" value={this.state.reServices ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
+                                    <label style={{ 'width': 300 }} htmlFor="reServices">interested in VR real estate services</label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="re-services" name="reServices" value={this.state.reServices ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
                                 </div>
                             </div>
 
                             <div className='row even-space' style={{ width: '65%' }}>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <label style={{'width': 300}} htmlFor="canContact"> can we contact you? </label>
-                                    <input style={{'width': 50}} autoComplete='off' className="checkBox" type="text" id="can-contact" name="canContact" value={this.state.canContact ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
+                                    <label style={{ 'width': 300 }} htmlFor="canContact"> can we contact</label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="can-contact" name="canContact" value={this.state.canContact ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
                                 </div>
                             </div>
 
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <h3 >::advanced options::</h3>
+                                </div>
+                            </div>
+
+                            <div className='row even-space' style={{ maxWidth: 400 }}>
+                                {this.state.validatorMsg}
+                            </div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label style={{ 'width': 300 }} htmlFor="emailVerified">email is verified </label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="email-verified" name="emailVerified" value={this.state.emailVerified ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
+                                </div>
+                            </div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label style={{ 'width': 300 }} htmlFor="playedBefore">has played before </label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="played-before" name="playedBefore" value={this.state.playedBefore ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
+                                </div>
+                            </div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label style={{ 'width': 300 }} htmlFor="tcAgree">agree to terms and conditions </label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="tc-agree" name="tcAgree" value={this.state.tcAgree ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
+                                </div>
+                            </div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label style={{ 'width': 300 }} htmlFor="liableAgree">agree to ltd liability waiver </label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="liable-agree" name="liableAgree" value={this.state.liableAgree ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
+                                </div>
+                            </div>
+
+                            <div className='row even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="statusId" >status:</label>
+                                    <select
+                                        name="statusId"
+                                        id="status"
+                                        style={{ 'flexGrow': 1 }}
+                                        value={this.state.statusId}
+                                        onChange={this.updateInput}>
+                                        <option id={0} value={0} >select</option>
+                                        {
+                                            (pickerData.status).map((item, index) => {
+                                                return <option key={index + 1} id={index + 1} value={item.value} >{item.label}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className='col even-space' style={{ width: '65%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <button style={{ 'flexGrow': 1 }} onClick={this.demotePromote} >
+                                        {this.state.typeCode === DataConstants.ADMIN_USER_TYPE_CODE ? 'demote user to customer' : 'promote user to admin'}
+                                    </button>
+                                </div>
+                            </div>
 
                         </div>
 

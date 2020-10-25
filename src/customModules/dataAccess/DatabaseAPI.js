@@ -27,24 +27,28 @@ export const DatabaseAPI = {
         let query = GraphQLMutationParamStrings.createNewUser(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
-    updateUser: function (userObj, callBack) {
-        let query = GraphQLMutationParamStrings.updateUser(userObj)
+    updateUser: function (userObj, userToUpdate, callBack) {
+        let query = GraphQLMutationParamStrings.updateUser(userToUpdate)
         return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
-    addUserAddress: function (userObj, callback) {
-        let query = GraphQLMutationParamStrings.addUserAddress(userObj)
+    updateUserType: function (userObj, userToUpdate, callBack) {
+        let query = GraphQLMutationParamStrings.updateUserType(userToUpdate)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
+    },
+    addUserAddress: function (userObj, userToUpdate, callback) {
+        let query = GraphQLMutationParamStrings.addUserAddress(userToUpdate)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
-    addUserPhone: function (userObj, callback) {
-        let query = GraphQLMutationParamStrings.addUserPhone(userObj)
+    addUserPhone: function (userObj, userToUpdate, callback) {
+        let query = GraphQLMutationParamStrings.addUserPhone(userToUpdate)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
-    addUserComment: function (userObj, callback) {
-        let query = GraphQLMutationParamStrings.addUserComment(userObj)
+    addUserComment: function (userObj, userToUpdate, callback) {
+        let query = GraphQLMutationParamStrings.addUserComment(userToUpdate)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
-    addUserLegalDoc: function (userObj, legalTypeCode, agree = true, callback) {
-        let query = GraphQLMutationParamStrings.addUserLegalDoc(userObj.username, legalTypeCode, agree)
+    addUserLegalDoc: function (userObj, userToUpdate, legalTypeCode, agree = true, callback) {
+        let query = GraphQLMutationParamStrings.addUserLegalDoc(userToUpdate.username, legalTypeCode, agree)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     addUpdateLocation: function (userObj, fields, callback) {

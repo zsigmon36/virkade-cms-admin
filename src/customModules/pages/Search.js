@@ -127,7 +127,7 @@ class Search extends Component {
                 fullAddress += user.address ? ` ${user.address.apt}` : ''
                 fullAddress += user.address ? ` ${user.address.unit}` : ''
                 fullAddress += user.address ? ` ${user.address.city},` : ''
-                fullAddress += user.address ? ` ${user.address.state.stateCode}` : ''
+                fullAddress += user.address && user.address.state ? ` ${user.address.state.stateCode}` : ''
                 fullAddress += user.address ? ` ${user.address.postalCode}` : ''
                 fullAddress = fullAddress || 'n/a'
 

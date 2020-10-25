@@ -1,4 +1,8 @@
 export const pickerData = {
+    status: [
+        { label: 'active', value: '1' },
+        { label: 'inActive', value: '2' },
+    ],
     heightFt: [
         { label: '3 foot', value: '3' },
         { label: '4 foot', value: '4' },

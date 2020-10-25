@@ -208,28 +208,6 @@ export const GraphQLQueryParamStrings = {
         }}`
         return query;
     },
-    addUserLegalDoc: function (username, legalTypeCode, agree) {
-        //2020-05-30 02:30:57.311
-        let curDate = new Date()
-        let expYear = curDate.getFullYear() + 1
-        let activeDate = `${curDate.getFullYear()}-${curDate.getMonth()+1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
-        let expireDate = `${expYear}-${curDate.getMonth()+1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
-
-        let query = `${DataConstants.MUTATION}{${DataConstants.ADD_USER_LEGAL_DOC}
-            (   
-                ${DataConstants.INPUT_LEGAL}:{
-                    ${DataConstants.USERNAME}:"${username}",
-                    ${DataConstants.TYPE_CODE}:"${legalTypeCode}",
-                    ${DataConstants.AGREE}:${agree},
-                    ${DataConstants.ACTIVE_DATE}:"${activeDate}",
-                    ${DataConstants.EXPIRE_DATE}:"${expireDate}",
-                    ${DataConstants.ENABLED}:true
-                }
-            ){
-                    ${DataConstants.LEGAL_DOC_ID}
-        }}`
-        return query;
-    },
     getSecurityQ: function (username) {
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_USER_BY_USERNAME}
             (
