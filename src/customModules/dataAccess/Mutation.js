@@ -101,7 +101,7 @@ export const GraphQLMutationParamStrings = {
         let unit = userObj.unit;
         let apt = userObj.apt;
         let street = userObj.street;
-        let city = userObj.street;
+        let city = userObj.city;
         let state = userObj.selState
         let postalCode = userObj.postalCode
 

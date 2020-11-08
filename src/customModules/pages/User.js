@@ -5,7 +5,7 @@ import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
 import searchFilterAction from '../reduxActions/SearchFilterAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link } from "react-router-dom"
+import SessionTableDisplay from "./fragments/SessionTableDisplay.js"
 import { ROUTES } from '../VirkadeAdminPages.js';
 import validator from 'validator';
 import { DatabaseAPI } from '../dataAccess/DatabaseAPI.js';
@@ -16,6 +16,7 @@ import * as DataConstants from "../dataAccess/DataConstants"
 
 const defaultLocalState = {
     sessions: [],
+    rawSessions: [],
     selUserId: 0,
     firstName: '',
     lastName: '',
@@ -76,7 +77,6 @@ class User extends Component {
         this.setPickerSates = this.setPickerSates.bind(this);
         this.confirmationAlert = this.confirmationAlert.bind(this);
         this.filterOptionsCallback = this.filterOptionsCallback.bind(this);
-        this.setSessionRows = this.setSessionRows.bind(this);
         this.demotePromote = this.demotePromote.bind(this);
         this.addSession = this.addSession.bind(this);
         this.addComment = this.addComment.bind(this);
@@ -105,67 +105,6 @@ class User extends Component {
         this.props.location.search = `?userId=${this.state.selUserId}`
         this.props.location.pathname = ROUTES.SESSION_PAGE
         this.props.history.push(this.props.location);
-    }
-
-    setSessionRows(data) {
-        let sessions = [];
-        if (data && data.length > 0) {
-            sessions.push(
-                <div key={0} className='table row'>
-                    <div className='th' style={{ flexGrow: 0.5 }}>payed</div>
-                    <div className='th' style={{ flexGrow: 0.5 }}>id</div>
-                    <div className='th' style={{ flexGrow: 1.5 }}>start time</div>
-                    <div className='th' style={{ flexGrow: 1.5 }}>end time</div>
-                    <div className='th'>location</div>
-                    <div className='th'>activity</div>
-                </div>
-            );
-            (data).map((session, index) => {
-                let startDate = moment(session.startDate, 'yyyy-MM-DD hh:mm:ss.S')
-                let endDate = moment(session.endDate, 'yyyy-MM-DD hh:mm:ss.S')
-                startDate = startDate.format('LLL')
-                endDate = endDate.format('LLL')
-                let { payed, sessionId } = session
-                let locName = session.location.name;
-                let locId = session.location.locationId;
-                let actName = session.activity.name;
-                let actId = session.activity.activityId;
-                let counter = index + 1
-
-                let curStateKey = `payedStatus${counter}`
-                this.setState({ [curStateKey]: payed });
-                let isAlt = index % 2 === 0 ? 'alt' : 'reg'
-                sessions.push(
-                    <div key={counter} className={`table row ${isAlt}`}>
-                        <div className='tr' style={{ flexGrow: 0.5 }}>
-                            <input autoComplete='off' style={{ width: 50 }} className={`checkBox ${isAlt}`} type="text" id={`session-payed-${index}`} name={`sessionPayed${index}`} value={this.state[curStateKey] ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
-                        </div>
-                        <div className='tr' style={{ flexGrow: 0.5 }}><Link to={{
-                            pathname: ROUTES.SESSION_PAGE,
-                            search: `?id=${sessionId}`
-                        }}>{sessionId}</Link></div>
-                        <div className='tr' style={{ flexGrow: 1.5 }} >{startDate}</div>
-                        <div className='tr' style={{ flexGrow: 1.5 }} >{endDate}</div>
-                        <div className='tr'><Link to={{
-                            pathname: ROUTES.LOCATION_PAGE,
-                            search: `?id=${locId}`
-                        }}>{locName}</Link></div>
-                        <div className='tr'><Link to={{
-                            pathname: ROUTES.ACTIVITY_PAGE,
-                            search: `?id=${actId}`
-                        }}>{actName}</Link></div>
-                    </div>
-                )
-                return true;
-            });
-        } else {
-            sessions.push(
-                <div key={0} className='table row'>
-                    <div className='th center'>:no sessions:</div>
-                </div>
-            );
-        }
-        this.setState({ 'sessions': sessions })
     }
 
     loading(data) {
@@ -263,6 +202,7 @@ class User extends Component {
             let newState = Object.assign({}, this.state);
             let user = data.getUserById
             let sessions = user.sessions
+            newState.rawSessions = sessions
             let comments = user.comments
             if (user) {
                 Object.entries(user).forEach(([key, value]) => {
@@ -787,11 +727,7 @@ class User extends Component {
                         </div>
 
                         <div className='col' style={{ flexGrow: 2, alignSelf: 'flex-start' }}>
-                            <div className='border' style={{ display: 'block', width: '100%', padding: '0 10px 0 10px', margin: '0 10px 5px 10px', boxSizing: 'border-box' }}>
-                                <h2>::sessions::</h2>
-                                <div className='separator'></div>
-                                {this.state.sessions}
-                            </div>
+                            <SessionTableDisplay sessions={this.state.rawSessions} />
                             <div className='border' style={{ display: 'block', width: '100%', padding: '0 10px 0 10px', margin: '5px 10px 5px 10px', boxSizing: 'border-box' }}>
                                 <h2>::conditions::</h2>
                                 <div className='separator'></div>
