@@ -339,3 +339,17 @@ tr, .tr {
   margin: 0;
 }
 
+.payment-panel {
+  position: fixed;
+  left: 0;
+  top:0;
+  width: 30%;
+  min-width: 450px;
+  border-width: 2px;
+  border-left: none;
+  height: 100vh;
+  background-color: #001a00;
+  transition: left 0.5s;
+  overflow-y: overlay;
+}
+

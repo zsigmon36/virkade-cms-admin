@@ -132,13 +132,16 @@ export const GraphQLQueryParamStrings = {
                 ${DataConstants.SESSIONS} {
                     ${DataConstants.SESSIONID}
                         ${DataConstants.LOCATION} {
-                        ${DataConstants.NAME}
-                        ${DataConstants.LOCATION_ID}
+                            ${DataConstants.NAME}
+                            ${DataConstants.LOCATION_ID}
+                            ${DataConstants.TAX_RATE}
                     }
                     ${DataConstants.PAYED}
                         ${DataConstants.ACTIVITY} {
-                        ${DataConstants.NAME}
-                        ${DataConstants.ACTIVITY_ID}
+                            ${DataConstants.NAME}
+                            ${DataConstants.ACTIVITY_ID}
+                            ${DataConstants.COST_PER_MIN}
+                            ${DataConstants.SETUP_MINUTES}
                     }
                     ${DataConstants.START_DATE}
                     ${DataConstants.END_DATE}    

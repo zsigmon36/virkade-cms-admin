@@ -16,7 +16,7 @@ import * as DataConstants from "../dataAccess/DataConstants"
 
 const defaultLocalState = {
     sessions: [],
-    rawSessions: [],
+    rawSessions: {},
     selUserId: 0,
     firstName: '',
     lastName: '',
@@ -202,7 +202,10 @@ class User extends Component {
             let newState = Object.assign({}, this.state);
             let user = data.getUserById
             let sessions = user.sessions
-            newState.rawSessions = sessions
+            for (let index in sessions) {
+                let session = sessions[index];
+                newState.rawSessions[session.sessionId] = session
+            }
             let comments = user.comments
             if (user) {
                 Object.entries(user).forEach(([key, value]) => {
@@ -247,8 +250,8 @@ class User extends Component {
             } else {
                 newState = Object.assign({}, defaultLocalState);
             }
+          
             this.setState(newState);
-            this.setSessionRows(sessions)
             this.setComments(comments)
             this.loading(false)
         } else if (error) {
@@ -727,7 +730,7 @@ class User extends Component {
                         </div>
 
                         <div className='col' style={{ flexGrow: 2, alignSelf: 'flex-start' }}>
-                            <SessionTableDisplay sessions={this.state.rawSessions} />
+                            <SessionTableDisplay parentState={this.state} />
                             <div className='border' style={{ display: 'block', width: '100%', padding: '0 10px 0 10px', margin: '5px 10px 5px 10px', boxSizing: 'border-box' }}>
                                 <h2>::conditions::</h2>
                                 <div className='separator'></div>
