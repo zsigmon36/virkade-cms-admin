@@ -1,4 +1,9 @@
 export const pickerData = {
+    serviceName: [
+        { label: 'select', value: 0 },
+        { label: 'cash', value: 1 },
+        { label: 'payPal', value: 2 },
+    ],
     status: [
         { label: 'active', value: '1' },
         { label: 'inActive', value: '2' },

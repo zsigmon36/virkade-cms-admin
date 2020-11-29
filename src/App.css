@@ -273,13 +273,21 @@ tr, .tr {
 .bigger {
       font-size: 22;
   }
+.bold {
+    font-family: terminus-bold;
+    font-weight: 700;
+}
 .boldLabel {
-      font-size: 18;
+      font-size: 18px;
       font-family: terminus-bold;
-  }
+}
+.boldCheckbox {
+    font-size: 28px;
+    font-family: terminus-bold;
+}
 .bigBorder {
       border-color: #9fff80;
-      border-width: 3;
+      border-width: 2px;
   }
 .logo {
     min-width: 150px;
@@ -350,6 +358,6 @@ tr, .tr {
   height: 100vh;
   background-color: #001a00;
   transition: left 0.5s;
-  overflow-y: overlay;
+  overflow-y: auto;
 }
 

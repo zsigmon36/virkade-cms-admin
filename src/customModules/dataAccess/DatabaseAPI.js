@@ -59,6 +59,10 @@ export const DatabaseAPI = {
         let query = GraphQLMutationParamStrings.addUpdateActivity(fields)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    addUpdateTransaction: function (userObj, fields, callback) {
+        let query = GraphQLMutationParamStrings.addUpdateTransaction(fields)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
 
     //Queries 
     getUserByUserName: function (userObj, callBack) {
@@ -106,6 +110,10 @@ export const DatabaseAPI = {
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     getPendingSessions: function (userObj, filter, callback) {
+        let query = GraphQLQueryParamStrings.getPendingSessions(filter)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    getAllSessions: function (userObj, filter, callback) {
         let query = GraphQLQueryParamStrings.getPendingSessions(filter)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },

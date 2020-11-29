@@ -291,6 +291,7 @@ export const GraphQLQueryParamStrings = {
                 ${DataConstants.USERNAME}
                 ${DataConstants.FIRST_NAME}
                 ${DataConstants.LAST_NAME}
+                ${DataConstants.PAYED}
                 ${DataConstants.ACTIVITY}{
                     ${DataConstants.NAME}
                     ${DataConstants.COST_PER_MIN}
@@ -350,5 +351,54 @@ export const GraphQLQueryParamStrings = {
     },
     checkSession: function () {
         return `${DataConstants.QUERY} { ${DataConstants.CHECK_SESSION} }`
+    },
+    getAllSessions: function (filter) {
+        let paramString = ""
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter || filter.selPayedFilter)){
+            paramString += "("
+        }
+        if (filter && filter.selActivityFilter){
+            paramString += `${DataConstants.ACTIVITY_ID}:${filter.selActivityFilter}`
+        }
+        if (filter && filter.selLocationFilter){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${DataConstants.LOCATION_ID}:${filter.selLocationFilter}`
+        }
+        if (filter && filter.selPayedFilter && filter.selPayedFilter !== ''){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${DataConstants.PAYED}:${filter.selPayedFilter === DataConstants.PAYED}`
+        }
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter || filter.selPayedFilter)){
+            paramString += ")"
+        }
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_ALL_PLAY_SESSIONS}
+                ${paramString}
+            {
+                ${DataConstants.SESSIONID}
+                ${DataConstants.START_DATE}
+                ${DataConstants.END_DATE}
+                ${DataConstants.USERID}
+                ${DataConstants.USERNAME}
+                ${DataConstants.FIRST_NAME}
+                ${DataConstants.LAST_NAME}
+                ${DataConstants.PAYED}
+                ${DataConstants.ACTIVITY}{
+                    ${DataConstants.NAME}
+                    ${DataConstants.COST_PER_MIN}
+                    ${DataConstants.SETUP_MINUTES}
+                    ${DataConstants.ACTIVITY_ID}
+                }${DataConstants.LOCATION}{
+                    ${DataConstants.NAME}
+                    ${DataConstants.PHONE_NUMBER}
+                    ${DataConstants.MANAGER}
+                    ${DataConstants.LOCATION_ID}
+                }
+            }
+        }`
+        return query; //.replace(/\s/g, '');
     },
 }

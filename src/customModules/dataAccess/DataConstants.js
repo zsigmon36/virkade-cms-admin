@@ -16,6 +16,7 @@ export const GET_USER_BY_USERNAME = 'getUserByUsername'
 export const GET_USER_BY_ID = 'getUserById'
 export const GET_AVAIL_PLAY_SESSIONS = 'getAvailableSessions'
 export const GET_PENDING_PLAY_SESSIONS = 'getPendingSessions'
+export const GET_ALL_PLAY_SESSIONS = 'getAllSessions'
 export const CHECK_SESSION = 'checkSession'
 export const SEARCH_USERS = 'searchUsers'
 export const SESSIONS = 'sessions'
@@ -36,6 +37,7 @@ export const SET_NEW_PASSWORD = 'setNewPassword'
 export const ADD_USER_SESSION = 'addUserSession'
 export const ADD_UPDATE_LOCATION = 'addUpdateLocation'
 export const ADD_UPDATE_ACTIVITY = 'addUpdateActivity'
+export const ADD_UPDATE_TRANSACTION = 'addUpdateTransaction'
 
 //params & fields
 export const CUST_USER_TYPE_CODE = 'CSTMR'
@@ -134,3 +136,10 @@ export const COST_PER_MIN = "costpm"
 export const SETUP_MINUTES = "setupMin"
 export const TAX_RATE = "taxRate"
 export const MANAGER = 'manager'
+
+export const INPUT_TRANSACTION = "inputTransaction"
+export const TRASACTION_ID = "transactionId"
+export const SESSION_IDS = "sessionIds"
+export const SERVICE_NAME = "serviceName"
+export const REF_ID = "refId"
+export const PAYMENT = "payment"

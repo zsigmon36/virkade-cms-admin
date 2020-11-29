@@ -302,4 +302,29 @@ export const GraphQLMutationParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
+    addUpdateTransaction: function (fields) {
+        let transactionId = 0
+        if (fields.transactionId > 0){
+            transactionId = fields.transactionId
+        }
+
+        let cleanDesc = (fields.paymentDescription).replace(/\n/g, DataConstants.NEW_LINE_TOKEN)
+
+        let query = `${DataConstants.MUTATION} { ${DataConstants.ADD_UPDATE_TRANSACTION}
+                (
+                    ${DataConstants.INPUT_TRANSACTION}: {
+                        ${DataConstants.TRASACTION_ID}:${transactionId},
+                        ${DataConstants.SESSION_IDS}:[${fields.selectedSessionIds}],
+                        ${DataConstants.SERVICE_NAME}:"${fields.serviceName}",
+                        ${DataConstants.DESCRIPTION}:"${cleanDesc}",
+                        ${DataConstants.REF_ID}:"${fields.refId}",
+                        ${DataConstants.PAYMENT}:${fields.payment}
+                    }
+                )
+            {
+                ${DataConstants.TRASACTION_ID}
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
 }
