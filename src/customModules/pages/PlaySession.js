@@ -20,6 +20,12 @@ const defaultLocalState = {
     availableSessionsPicker: [],
     availableSessionsRaw: [],
     selUserId: 0,
+    id: 0,
+    startDate: '',
+    endDate: '',
+    locationName: '',
+    activityName: '',
+    payed: false,
     firstName: '',
     lastName: '',
     username: '',
@@ -27,12 +33,11 @@ const defaultLocalState = {
     costpm: 0,
     taxRate: 0,
     sessionTotal: 0,
-
-    modalIsOpen: false,
-    modalTitle: undefined,
-    modalBody: undefined,
-    modalOnClose: () => { return true },
-    modalOnSubmit: () => { return true }
+    transactionId: 0,
+    refId: '',
+    payment: 0,
+    paymentDescription: "",
+    selAvilSessionTime: 0,
 }
 
 class User extends Component {
@@ -44,7 +49,6 @@ class User extends Component {
         this.confirmationAlert = this.confirmationAlert.bind(this);
         this.filterOptionsCallback = this.filterOptionsCallback.bind(this);
         this.setSessionOptions = this.setSessionOptions.bind(this);
-        this.closeModal = this.closeModal.bind(this);
         this.state = Object.assign({}, defaultLocalState);
     }
 
@@ -54,14 +58,26 @@ class User extends Component {
             let search = this.props.location.search;
             let urlParams = new URLSearchParams(search);
             let userId = urlParams.get('userId');
-            let sessionId = urlParams.get('id');
-            this.setState({ selUserId: userId, id: sessionId })
+            let sessionId = urlParams.get('id') || 0;
+            this.setState({ selUserId: userId, id: parseInt(sessionId) })
             if (userId) {
                 DatabaseAPI.getAllFieldsUserById(this.props.user, userId, this.setInit)
             }
         }
         DatabaseAPI.getAllSessions(this.props.user, this.props.searchFilter, this.setInit)
         DatabaseAPI.getAvailableSessions(this.props.user, undefined, this.setSessionOptions)
+    }
+
+    componentDidUpdate() {
+        let curSessionId = this.state.id
+        let urlParams = new URLSearchParams(this.props.location.search);
+        let sessionId = urlParams.get('id') || 0;
+        if (parseInt(sessionId) !== curSessionId) {
+            this.loading(true)
+            this.setState({ id: parseInt(sessionId) })
+            DatabaseAPI.getSessionById(this.props.user, sessionId, this.setInit)
+            DatabaseAPI.getAvailableSessions(this.props.user, undefined, this.setSessionOptions)
+        }
     }
 
     setInit(data, error) {
@@ -74,30 +90,99 @@ class User extends Component {
             newState.userId = user.userId
             this.setState(newState);
             this.loading(false)
+        } else if (data && data.getSessionById) {
+            let newState = Object.assign({}, this.state);
+            let session = data.getSessionById
+            let startDate = moment(session.startDate, 'yyyy-MM-DD hh:mm:ss.S')
+            let endDate = moment(session.endDate, 'yyyy-MM-DD hh:mm:ss.S')
+            let duration = ((endDate.clone()).subtract(startDate.clone()) / 1000) / 60
+
+            let setupTime = session.activity.setupMin
+            let costpm = session.activity.costpm
+            let taxRate = session.location.taxRate
+            let sessionTotal = ((duration - setupTime) * costpm * (1 + taxRate))
+            newState.startDate = startDate.format('LLL')
+            newState.endDate = endDate.format('LLL')
+            newState.locationName = session.location.name
+            this.props.searchFilter.selLocationFilter = session.location.locationId
+            newState.activityName = session.activity.name
+            this.props.searchFilter.selActivityFilter = session.activity.activityId
+            newState.payed = session.payed
+            newState.username = session.username
+            newState.firstName = session.firstName
+            newState.lastName = session.lastName
+            newState.taxRate = taxRate
+            newState.costpm = costpm
+            newState.setupMin = setupTime
+            newState.sessionTotal = sessionTotal
+            newState.duration = duration
+            newState.transactionId = session.transaction ? session.transaction.transactionId : 0
+            newState.serviceName = session.transaction ? session.transaction.serviceName : ''
+            for (let i in pickerData.serviceName) {
+                if (pickerData.serviceName[i].label === newState.serviceName) {
+                    newState.serviceName = pickerData.serviceName[i].value
+                    break;
+                }
+            }
+            newState.refId = session.transaction ? session.transaction.refId : ''
+            newState.payment = session.transaction ? session.transaction.payment : 0
+            newState.paymentDescription = session.transaction ? session.transaction.description.replaceAll(DataConstants.NEW_LINE_TOKEN, " ") : ''
+
+            this.setState(newState);
         } else if (data && data.getAllSessions) {
             let newState = Object.assign({}, this.state);
             let sessions = data.getAllSessions
+            newState.sessions = sessions
             for (let index in sessions) {
                 let session = sessions[index];
                 if (newState.id === session.sessionId) {
-                    newState.startDate = session.startDate
-                    newState.endDate = session.endDate
+                    let startDate = moment(session.startDate, 'yyyy-MM-DD hh:mm:ss.S')
+                    let endDate = moment(session.endDate, 'yyyy-MM-DD hh:mm:ss.S')
+                    let duration = ((endDate.clone()).subtract(startDate.clone()) / 1000) / 60
+
+                    let setupTime = session.activity.setupMin
+                    let costpm = session.activity.costpm
+                    let taxRate = session.location.taxRate
+                    let sessionTotal = ((duration - setupTime) * costpm * (1 + taxRate))
+                    newState.startDate = startDate.format('LLL')
+                    newState.endDate = endDate.format('LLL')
                     newState.locationName = session.location.name
+                    this.props.searchFilter.selLocationFilter = session.location.locationId
                     newState.activityName = session.activity.name
+                    this.props.searchFilter.selActivityFilter = session.activity.activityId
                     newState.payed = session.payed
+                    newState.username = session.username
+                    newState.firstName = session.firstName
+                    newState.lastName = session.lastName
+
+                    newState.taxRate = taxRate
+                    newState.costpm = costpm
+                    newState.setupMin = setupTime
+                    newState.sessionTotal = sessionTotal
+
+                    newState.duration = duration
+                    newState.transactionId = session.transaction ? session.transaction.transactionId : 0
+                    newState.serviceName = session.transaction ? session.transaction.serviceName : ''
+                    for (let i in pickerData.serviceName) {
+                        if (pickerData.serviceName[i].label === newState.serviceName) {
+                            newState.serviceName = pickerData.serviceName[i].value
+                            break;
+                        }
+                    }
+                    newState.refId = session.transaction ? session.transaction.refId : ''
+                    newState.payment = session.transaction ? session.transaction.payment : 0
+                    newState.paymentDescription = session.transaction ? session.transaction.description.replaceAll(DataConstants.NEW_LINE_TOKEN, " ") : ''
 
                 }
                 newState.rawSessions[session.sessionId] = session
             }
             this.setState(newState);
-            this.loading(false)
         } else if (error) {
             console.error(`hmmm... \nlooks like something went wrong.  \n${error[0].message}`)
-            this.loading(false)
         } else {
             console.error(`hmmm... \nlooks like something went wrong.`)
-            this.loading(false)
         }
+        this.loading(false)
     }
 
     setSessionOptions(data) {
@@ -109,6 +194,7 @@ class User extends Component {
                 startDate = startDate.format('ddd hh:mm a')
                 endDate = endDate.format('ddd hh:mm a')
                 pickerItems.push({ key: index, label: `${startDate} - ${endDate}`, value: index })
+                return true
             })
             if ((data.getAvailableSessions).length > 0) {
                 this.setState({ 'availableSessionsRaw': data.getAvailableSessions })
@@ -125,48 +211,31 @@ class User extends Component {
     }
 
     validateInput(data, isAlert = true) {
-        let { postalCode,
-            age,
-            weight,
-            number,
-            firstName,
-            lastName,
-            emailAddress,
-            username,
-            password,
-            securityQuestion } = data
+        let { username,
+            serviceName,
+            refId,
+            payment,
+            id } = data
         let msg = '';
         let isValid = true
 
-        if (postalCode !== undefined && postalCode !== '' && !validator.isPostalCode(postalCode, "US")) {
-            msg = 'postal code is not valid'
+        if (id !== undefined && id <= 0) {
+            msg = 'must be valid session selection'
             isValid = false;
-        } else if (age !== undefined && age !== '' && (!validator.isNumeric(String(age)) || age.length > 3)) {
-            msg = 'age has to be a number and less than 999'
+        } else if (serviceName !== undefined && serviceName <= 0) {
+            msg = 'payment type must be selected'
             isValid = false;
-        } else if (weight !== undefined && weight !== '' && (!validator.isNumeric(String(weight)) || weight.length > 3)) {
-            msg = 'weight has to be a number and less than 999'
+        } else if (refId !== undefined && (refId === '' || !validator.isNumeric(String(refId)))) {
+            msg = 'ref id must not be empty and is expected to be numeric'
             isValid = false;
-        } else if (number !== undefined && number !== '' && !validator.isMobilePhone(number, 'any')) {
-            msg = 'mobile phone number is invalid'
+        } else if (payment !== undefined && (payment === '' || !validator.isCurrency(String(payment)))) {
+            msg = 'payment amount has to be a valid currency'
             isValid = false;
-        } else if (firstName !== undefined && firstName === "") {
-            msg = 'first name cannot be empty'
-            isValid = false;
-        } else if (lastName !== undefined && lastName === "") {
-            msg = 'last name cannot be empty'
-            isValid = false;
-        } else if (emailAddress !== undefined && !validator.isEmail(emailAddress)) {
-            msg = 'email address is not a valid'
+        } else if (payment !== undefined && payment !== this.state.sessionTotal.toFixed(2)) {
+            msg = 'payment amount must match the session total [for now].  If you needed to do some multiple transaction payment then please note the details in the description'
             isValid = false;
         } else if (username !== undefined && (username === "" || username.length < 6)) {
             msg = 'username must be at least 6 characters'
-            isValid = false;
-        } else if (password !== undefined && (password !== "" && password.length < 8)) {
-            msg = 'password must be at least 8 characters or left empty to remain unchanged'
-            isValid = false;
-        } else if (securityQuestion !== undefined && securityQuestion === "") {
-            msg = 'security question cannot be empty'
             isValid = false;
         }
         this.setState({ validatorMsg: msg })
@@ -184,44 +253,51 @@ class User extends Component {
     updateInput(event) {
         let key = event.target.name
         let value = event.target.value
-        this.setState({ [key]: value })
         this.validateInput({ [key]: value }, false)
+        if (key === 'selActivityFilter' || key === 'selLocationFilter') {
+            this.props.searchFilterAction({ [key]: value })
+        } else {
+            this.setState({ [key]: value })
+        }
         if (key === 'selUserId') {
 
         }
     }
 
-    closeModal() {
-        this.setState({ modalIsOpen: false })
+    sessionAction(action) {
+        alert('session action clicked')
+    }
+
+    updateTrans() {
+        if (this.validateInput(this.state, true)) {
+            this.loading(true)
+            let newState = Object.assign({}, this.state)
+            for (let i in pickerData.serviceName) {
+                if (pickerData.serviceName[i].value === parseInt(newState.serviceName)) {
+                    newState.serviceName = pickerData.serviceName[i].label
+                    break;
+                }
+            }
+            alert('updateTrans clicked')
+            //DatabaseAPI.addUpdateTransaction(this.props.user, newState, this.confirmationAlert)
+        }
     }
 
     confirmationAlert(data, error) {
-        if (data && (data.updateUser)) {
+        if (data && (data.addUpdateTransaction)) {
             this.props.alertAction({ type: 'info' })
-            this.props.alertAction({ msg: "user updated successfully" })
+            this.props.alertAction({ msg: "transaction updated successfully" })
             this.props.sharedFlagsAction({ alertOpen: true });
-            DatabaseAPI.getAllFieldsUserById(this.props.user, data.updateUser.userId, this.setUserDetails)
-        } else if (data && (data.updateUserType)) {
-            this.props.alertAction({ type: 'info' })
-            this.props.alertAction({ msg: "user type updated successfully" })
-            this.props.sharedFlagsAction({ alertOpen: true });
-            DatabaseAPI.getAllFieldsUserById(this.props.user, data.updateUserType.userId, this.setUserDetails)
-        } else if (data && data.addComment) {
-            this.closeModal()
-            this.props.alertAction({ type: 'info' })
-            this.props.alertAction({ msg: "comment added successfully" })
-            this.props.sharedFlagsAction({ alertOpen: true });
-            DatabaseAPI.getAllFieldsUserById(this.props.user, data.addComment.userId, this.setUserDetails)
+            this.props.parentProps.history.push({ pathname: ROUTES.BASE_PAGE })
+            this.props.parentProps.history.goBack();
         } else if (error) {
             this.props.alertAction({ type: 'error' })
             this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong. \n${error[0].message}` })
             this.props.sharedFlagsAction({ alertOpen: true });
-            this.closeModal()
         } else {
             this.props.alertAction({ type: 'error' })
             this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong.` })
             this.props.sharedFlagsAction({ alertOpen: true });
-            this.closeModal()
         }
     }
 
@@ -241,27 +317,26 @@ class User extends Component {
                 <Header history={this.props.history} curModule={this} />
                 <ConfirmationModal isOpen={this.state.modalIsOpen} title={this.state.modalTitle} body={this.state.modalBody} onClose={this.state.modalOnClose} parentState={this.state} onSubmit={this.state.modalOnSubmit} />
                 <div className='section'>
+                    <div className='row even-space'>
+                        <h4>{this.state.validatorMsg}</h4>
+                    </div>
                     < div className='row'>
                         <div className='col border' style={{ flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::session details::</h2>
                             <div className='separator'></div>
-
-                            <div className='row even-space' style={{ maxWidth: 400 }}>
-                                {this.state.validatorMsg}
-                            </div>
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <div style={{ width: '100%' }}>
-                                    <label>session id: {this.state.sessionId}</label>
+                                    <label>session id: {this.state.id}</label>
                                 </div>
                             </div>
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <div style={{ width: '100%' }}>
-                                    <label >start time: {this.state.startTime}</label>
+                                    <label >start time: {this.state.startDate}</label>
                                 </div>
                             </div>
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <div style={{ width: '100%' }}>
-                                    <label >end time: {this.state.endTime}</label>
+                                    <label >end time: {this.state.endDate}</label>
                                 </div>
                             </div>
                             <div className='row even-space' style={{ width: '80%' }}>
@@ -276,7 +351,7 @@ class User extends Component {
                             </div>
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <div style={{ width: '100%' }}>
-                                    <label >payed: {this.state.payed}</label>
+                                    <label >payed: {this.state.payed.toString()}</label>
                                 </div>
                             </div>
                             <div className='row even-space' style={{ width: '80%' }}>
@@ -296,10 +371,10 @@ class User extends Component {
                                 </div>
                             </div>
 
-                            <div style={{ minHeight: 46 }}></div>
+                            <div style={{ minHeight: 122 }}></div>
 
                             <div className='row' style={{ width: '100%' }}>
-                                <button style={{ 'flexGrow': 1 }} onClick={this.deleteSession} >
+                                <button style={{ 'flexGrow': 1 }} onClick={() => this.sessionAction('delete')} >
                                     delete session
                                     </button>
                             </div>
@@ -308,22 +383,24 @@ class User extends Component {
                         <div className='col border' style={{ flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::update session::</h2>
                             <div className='separator'></div>
-                            <div className='row even-space' style={{ maxWidth: 400 }}>
-                                {this.state.validatorMsg}
-                            </div>
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <div style={{ width: '100%' }}>
-                                    <label htmlFor="sessionId" >session id:</label>
-                                    <input autoComplete='off' type="text" id="session-id" name="sessionId" onChange={this.updateInput} value={this.state.sessionId} readOnly/>
+                                    <label htmlFor="id" >session id:</label>
+                                    <input autoComplete='off' type="text" id="session-id" name="id" onChange={this.updateInput} value={this.state.id} readOnly />
+                                </div>
+                            </div>
+                            <div className='row even-space' >
+                                <div className='row'>
+                                    <label>:: pick a time below ::</label>
                                 </div>
                             </div>
 
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <select
                                     style={{ flexGrow: 1 }}
-                                    id='avil-session-time'
-                                    selectedValue={this.state.selAvilSessionTime}
-                                    name='avilSessionTime'
+                                    id='sel-avil-session-time'
+                                    value={this.state.selAvilSessionTime}
+                                    name='selAvilSessionTime'
                                     onChange={this.updateInput}>
                                     {
                                         this.state.availableSessionsPicker.map(item => {
@@ -335,7 +412,8 @@ class User extends Component {
 
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <label htmlFor="selLocationFilter" >location:</label>
-                                <select style={{ flexGrow: 1 }} id='location-filter' name='selLocationFilter' value={this.props.searchFilter.selLocationFilter} onChange={this.updateFilterInput} >
+                                <select style={{ flexGrow: 1 }} id='location-filter' name='selLocationFilter' value={this.props.searchFilter.selLocationFilter} onChange={this.updateInput} >
+                                    <option key='0' value=''>location</option>
                                     {
                                         this.props.searchFilter.locationFilterOptions.map(item => {
                                             return <option key={item.locationId} value={item.locationId}>{item.name}</option>
@@ -346,7 +424,8 @@ class User extends Component {
 
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <label htmlFor="selActivityFilter" >activity:</label>
-                                <select style={{ flexGrow: 1 }} id='activity-filter' name='selActivityFilter' value={this.props.searchFilter.selActivityFilter} onChange={this.updateFilterInput} >
+                                <select style={{ flexGrow: 1 }} id='activity-filter' name='selActivityFilter' value={this.props.searchFilter.selActivityFilter} onChange={this.updateInput} >
+                                    <option key='0' value=''>activity</option>
                                     {
                                         this.props.searchFilter.activityFilterOptions.map(item => {
                                             return <option key={item.activityId} value={item.activityId}>{item.name}</option>
@@ -361,10 +440,10 @@ class User extends Component {
                                 </div>
                             </div>
 
-                            <div style={{ minHeight: 58 }}></div>
+                            <div style={{ minHeight: 92 }}></div>
 
                             <div className='row' style={{ width: '100%' }}>
-                                <button style={{ 'flexGrow': 1 }} onClick={this.updateSession} >
+                                <button style={{ 'flexGrow': 1 }} onClick={() => this.sessionAction('update')} >
                                     update session
                                     </button>
                             </div>
@@ -376,7 +455,7 @@ class User extends Component {
 
                             <div className='row even-space' style={{ 'width': '90%' }} >
                                 <div className='col even-space' >
-                                    <div>cost/min</div>
+                                    <div>duration</div>
                                 </div>
                                 <div className='col even-space' style={{ 'flexGrow': 0.5 }} >
                                     <div> - </div>
@@ -388,7 +467,7 @@ class User extends Component {
                                     <div> X </div>
                                 </div>
                                 <div className='col even-space' >
-                                    <div>duration</div>
+                                    <div>cost/min</div>
                                 </div>
                                 <div className='col even-space' style={{ 'flexGrow': 0.5 }}>
                                     <div> X </div>
@@ -399,19 +478,19 @@ class User extends Component {
                             </div>
                             <div className='row even-space' style={{ 'width': '90%' }}>
                                 <div className='col even-space' >
-                                    <div>${this.state.costpm.toFixed(2)}</div>
+                                    <div>{this.state.duration} [min]</div>
                                 </div>
                                 <div className='col even-space' style={{ 'flexGrow': 0.5 }}>
                                     <div>-</div>
                                 </div>
                                 <div className='col even-space' >
-                                    <div>{this.state.setupTime} [min]</div>
+                                    <div>{this.state.setupMin} [min]</div>
                                 </div>
                                 <div className='col even-space' style={{ 'flexGrow': 0.5 }}>
                                     <div>X</div>
                                 </div>
                                 <div className='col even-space' >
-                                    <div>{this.state.duration} [min]</div>
+                                    <div>${this.state.costpm.toFixed(2)}</div>
                                 </div>
                                 <div className='col even-space' style={{ 'flexGrow': 0.5 }}>
                                     <div>X</div>
@@ -425,13 +504,9 @@ class User extends Component {
                                 <div>session total: ${this.state.sessionTotal.toFixed(2)}</div>
                             </div>
                             <div className='separator'></div>
-                            <div className='row even-space' style={{ maxWidth: 400 }}>
-                                {this.state.validatorMsg}
-                            </div>
-
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <label htmlFor="transactionId" >trans id: #</label>
-                                <input autoComplete='off' type="text" id="transaction-id" name="transactionId" onChange={this.updateInput} value={this.state.transactionId} readOnly/>
+                                <input autoComplete='off' type="text" id="transaction-id" name="transactionId" onChange={this.updateInput} value={this.state.transactionId} readOnly />
                             </div>
 
                             <div className='row even-space' style={{ width: '80%' }}>
@@ -467,19 +542,22 @@ class User extends Component {
                                 <textarea style={{ width: '100%', height: 75 }} type='text' autoComplete='off' id="payment-description" name="paymentDescription" onChange={this.updateInput} value={this.state.paymentDescription} required></textarea>
                             </div>
 
-                            {this.state.payed &&
-                                <div className='row' style={{ width: '100%' }}>
-                                    <button style={{ 'flexGrow': 1 }} onClick={this.unpay} >
+                            <div className='row' style={{ width: '100%' }}>
+                                {this.state.payed &&
+                                    <button style={{ 'flexGrow': 1 }} onClick={() => this.sessionAction('unpay')} >
                                         mark unpayed
                                     </button>
-                                </div>
-                            }
+                                }
+                                <button style={{ 'flexGrow': 1 }} onClick={() => this.updateTrans()} >
+                                    update transaction
+                                    </button>
+                            </div>
                         </div>
                     </ div>
                 </ div>
                 <div className='section'>
                     <div className='row' style={{ flexGrow: 2, alignSelf: 'flex-start' }}>
-                        <SessionTableDisplay parentState={this.state} parentProps={this.props} />
+                        <SessionTableDisplay parentState={this.state} parentProps={this.props} right={true} />
                     </div>
                 </div>
             </div>
@@ -498,6 +576,7 @@ function mapDispatchToProps(dispatch) {
     return {
         sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
         alertAction: bindActionCreators(alertAction, dispatch),
+        searchFilterAction: bindActionCreators(searchFilterAction, dispatch),
     }
 }
 

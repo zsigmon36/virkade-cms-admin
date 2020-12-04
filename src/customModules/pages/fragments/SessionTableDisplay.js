@@ -44,7 +44,7 @@ class SessionTableDisplay extends Component {
 
     payedSessionAlert() {
         this.props.alertAction({ type: 'info' })
-        this.props.alertAction({ msg: "go to session page to mark unpayed" })
+        this.props.alertAction({ msg: "to mark unpayed, select id and update on play-session page transaction details" })
         this.props.sharedFlagsAction({ alertOpen: true });
     }
 
@@ -131,7 +131,7 @@ class SessionTableDisplay extends Component {
 
                         <div className='row even-space' style={{ 'width': '100%' }} >
                             <div className='col even-space' >
-                                <div>cost/min</div>
+                                <div>duration</div>
                             </div>
                             <div className='col even-space' style={{ 'flexGrow': 0.5 }} >
                                 <div> - </div>
@@ -143,7 +143,7 @@ class SessionTableDisplay extends Component {
                                 <div> X </div>
                             </div>
                             <div className='col even-space' >
-                                <div>duration</div>
+                                <div>cost/min</div>
                             </div>
                             <div className='col even-space' style={{ 'flexGrow': 0.5 }}>
                                 <div> X </div>
@@ -154,7 +154,7 @@ class SessionTableDisplay extends Component {
                         </div>
                         <div className='row even-space' style={{ 'width': '100%' }}>
                             <div className='col even-space' >
-                                <div>${costpm.toFixed(2)}</div>
+                                <div>{duration} [min]</div>
                             </div>
                             <div className='col even-space' style={{ 'flexGrow': 0.5 }}>
                                 <div>-</div>
@@ -166,7 +166,7 @@ class SessionTableDisplay extends Component {
                                 <div>X</div>
                             </div>
                             <div className='col even-space' >
-                                <div>{duration} [min]</div>
+                                <div>${costpm.toFixed(2)}</div>
                             </div>
                             <div className='col even-space' style={{ 'flexGrow': 0.5 }}>
                                 <div>X</div>
@@ -289,7 +289,12 @@ class SessionTableDisplay extends Component {
                     </div>
                 }
 
-                <div className='payment-panel border' style={this.state.payPanelVisible ? { left: 0 } : { left: '-50%' }}>
+                <div className={`${this.props.right ? 'payment-panel-right' : 'payment-panel'} border`}
+                    style={this.state.payPanelVisible ? (
+                        this.props.right ? { right: 0 } : { left: 0 }
+                    ) : (
+                            this.props.right ? { right: '-50%' } : { left: '-50%' }
+                        )}>
                     <div className='section' style={{ 'width': '100%' }}>
                         <div className='row even-space' >
                             <h2>::payment::</h2>

@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import Header from './fragments/Header.js'
 import ConfirmationModal from './fragments/ConfirmationModal.js'
 import sharedFlagsAction from '../reduxActions/SharedFlagsAction.js'
-import searchFilterAction from '../reduxActions/SearchFilterAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import SessionTableDisplay from "./fragments/SessionTableDisplay.js"
-import { ROUTES } from '../VirkadeAdminPages.js';
+import SessionCreationDisplay from "./fragments/SessionCreationDisplay.js"
 import validator from 'validator';
 import { DatabaseAPI } from '../dataAccess/DatabaseAPI.js';
 import { pickerData } from '../../static/pickerData';
@@ -58,6 +57,8 @@ const defaultLocalState = {
     countryCode: 0,
     phoneTypeCode: DataConstants.MOBILE_PHONE_TYPE_CODE,
 
+    createSessionVisible:false,
+
     modalIsOpen: false,
     modalTitle: undefined,
     modalBody: undefined,
@@ -78,7 +79,7 @@ class User extends Component {
         this.confirmationAlert = this.confirmationAlert.bind(this);
         this.filterOptionsCallback = this.filterOptionsCallback.bind(this);
         this.demotePromote = this.demotePromote.bind(this);
-        this.addSession = this.addSession.bind(this);
+        this.toggleAddSession = this.toggleAddSession.bind(this);
         this.addComment = this.addComment.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.state = Object.assign({}, defaultLocalState);
@@ -101,10 +102,12 @@ class User extends Component {
         DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
     }
 
-    addSession() {
-        this.props.location.search = `?userId=${this.state.selUserId}`
-        this.props.location.pathname = ROUTES.SESSION_PAGE
-        this.props.history.push(this.props.location);
+    toggleAddSession() {
+        if (this.state.createSessionVisible){
+            this.setState({createSessionVisible:false})
+        }else {
+            this.setState({createSessionVisible:true})
+        }
     }
 
     loading(data) {
@@ -749,6 +752,7 @@ class User extends Component {
                         </div>
                     </div>
                 </div>
+                <SessionCreationDisplay parent={this} right={true} panelVisible={this.state.createSessionVisible}/>
             </div>
         );
     }

@@ -213,7 +213,7 @@ export const GraphQLMutationParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
-    addUserSession: function (userObj, session) {
+    addUserSession: function (session) {
 
         let query = `${DataConstants.MUTATION} { ${DataConstants.ADD_USER_SESSION}
             (
@@ -223,7 +223,7 @@ export const GraphQLMutationParamStrings = {
                     ${DataConstants.LOCATION_NAME}:"${session.location.name}",
                     ${DataConstants.ACTIVITY_NAME}:"${session.activity.name}",
                     ${DataConstants.PAYED}:false,
-                    ${DataConstants.USERNAME}:"${userObj.username}",
+                    ${DataConstants.USERNAME}:"${session.username}"
                 }
             )
             {
@@ -238,7 +238,7 @@ export const GraphQLMutationParamStrings = {
                     ${DataConstants.INPUT_LOCATION}: {
                         ${DataConstants.LOCATION_ID}:${fields.selLocationFilter ? fields.selLocationFilter : 0},
                         ${DataConstants.TAX_RATE}:${fields.locationTaxRate},
-                        ${DataConstants.LOCATION_NAME}:"${fields.locationName}",
+                        ${DataConstants.NAME}:"${fields.locationName}",
                         ${DataConstants.DESCRIPTION}:"${fields.locationDescription}",
                         ${DataConstants.PHONE_NUM}:"${fields.locationPhoneNum}",
                         ${DataConstants.MANAGER}:"${fields.locationManager}",
@@ -263,7 +263,7 @@ export const GraphQLMutationParamStrings = {
                     ${DataConstants.POSTAL_CODE}
                 }
                 ${DataConstants.LOCATION_ID}
-                ${DataConstants.LOCATION_NAME}
+                ${DataConstants.NAME}
                 ${DataConstants.TAX_RATE}
                 ${DataConstants.DESCRIPTION}
                 ${DataConstants.PHONE_NUM}
@@ -278,7 +278,7 @@ export const GraphQLMutationParamStrings = {
                 (
                     ${DataConstants.INPUT_ACTIVITY}: {
                         ${DataConstants.ACTIVITY_ID}:${fields.selActivityFilter ? fields.selActivityFilter : 0},
-                        ${DataConstants.ACTIVITY_NAME}:"${fields.activityName}",
+                        ${DataConstants.NAME}:"${fields.activityName}",
                         ${DataConstants.DESCRIPTION}:"${fields.activityDescription}",
                         ${DataConstants.WEBSITE}:"${fields.activityWebsite}",
                         ${DataConstants.SUPPORT_CONTACT}:"${fields.activitySupportContact}",
@@ -290,7 +290,7 @@ export const GraphQLMutationParamStrings = {
                 )
             {
                 ${DataConstants.ACTIVITY_ID}
-                ${DataConstants.ACTIVITY_NAME}
+                ${DataConstants.NAME}
                 ${DataConstants.DESCRIPTION}
                 ${DataConstants.WEBSITE}
                 ${DataConstants.SUPPORT_CONTACT}

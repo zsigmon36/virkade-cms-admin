@@ -17,6 +17,7 @@ export const GET_USER_BY_ID = 'getUserById'
 export const GET_AVAIL_PLAY_SESSIONS = 'getAvailableSessions'
 export const GET_PENDING_PLAY_SESSIONS = 'getPendingSessions'
 export const GET_ALL_PLAY_SESSIONS = 'getAllSessions'
+export const GET_PLAY_SESSION_BY_ID = 'getSessionById'
 export const CHECK_SESSION = 'checkSession'
 export const SEARCH_USERS = 'searchUsers'
 export const SESSIONS = 'sessions'
@@ -115,7 +116,7 @@ export const ENABLED = 'enabled'
 
 export const INPUT_ACTIVITY = 'inputActivity'
 export const ACTIVITY_ID = 'activityId'
-export const ACTIVITY_NAME = 'name'
+export const ACTIVITY_NAME = 'activityName'
 export const ACTIVITY = 'activity'
 export const CREATOR = 'creator'
 export const SUPPORT_CONTACT = 'supportContact'
@@ -123,7 +124,7 @@ export const WEBSITE = 'webSite'
 
 export const INPUT_LOCATION = 'inputLocation'
 export const LOCATION_ID = 'locationId'
-export const LOCATION_NAME = 'name'
+export const LOCATION_NAME = 'locationName'
 export const LOCATION = 'location'
 export const PHONE_NUM = 'phoneNum'
 export const START_DATE = 'startDate'
@@ -137,6 +138,7 @@ export const SETUP_MINUTES = "setupMin"
 export const TAX_RATE = "taxRate"
 export const MANAGER = 'manager'
 
+export const TRANSACTION = 'transaction'
 export const INPUT_TRANSACTION = "inputTransaction"
 export const TRASACTION_ID = "transactionId"
 export const SESSION_IDS = "sessionIds"

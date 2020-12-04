@@ -173,7 +173,7 @@ class Header extends Component {
       )
       buttonHtml.push(
         <div key="3" className='col'>
-          <button onClick={() => this.props.curModule.addSession()} >
+          <button onClick={() => this.props.curModule.toggleAddSession()} >
             add session
           </button>
         </div>

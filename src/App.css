@@ -361,3 +361,17 @@ tr, .tr {
   overflow-y: auto;
 }
 
+.payment-panel-right {
+  position: fixed;
+  right: 0;
+  top:0;
+  width: 30%;
+  min-width: 450px;
+  border-width: 2px;
+  border-right: none;
+  height: 100vh;
+  background-color: #001a00;
+  transition: right 0.5s;
+  overflow-y: auto;
+}
+

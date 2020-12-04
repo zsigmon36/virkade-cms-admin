@@ -5,7 +5,7 @@ const defaultState = {
     selActivityFilter: '',
     selLocationFilter: '',
     selPayedFilter: '',
-
+    selDateFilter: '',
     selStateFilter: '',
     fnameFilter: "",
     lnameFilter: "",

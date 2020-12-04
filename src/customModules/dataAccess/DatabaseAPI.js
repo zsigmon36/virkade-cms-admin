@@ -16,7 +16,7 @@ export const DatabaseAPI = {
         return dataFetch(query, authToken.username, authToken.token, callBack)
     },
     addUserSession: function (userObj, session, callback) {
-        let query = GraphQLMutationParamStrings.addUserSession(userObj, session)
+        let query = GraphQLMutationParamStrings.addUserSession(session)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     setNewPassword: function (userObj, callback) {
@@ -114,7 +114,11 @@ export const DatabaseAPI = {
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     getAllSessions: function (userObj, filter, callback) {
-        let query = GraphQLQueryParamStrings.getPendingSessions(filter)
+        let query = GraphQLQueryParamStrings.getAllSessions(filter)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    getSessionById: function (userObj, id, callback) {
+        let query = GraphQLQueryParamStrings.getSessionById(id)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     checkSession: function (authToken, callBack = undefined) {

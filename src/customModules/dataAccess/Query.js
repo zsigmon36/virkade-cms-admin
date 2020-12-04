@@ -188,7 +188,7 @@ export const GraphQLQueryParamStrings = {
                 }
                 ${DataConstants.POSTAL_CODE}
             }
-            ${DataConstants.LOCATION_NAME}
+            ${DataConstants.NAME}
             ${DataConstants.TAX_RATE}
             ${DataConstants.DESCRIPTION}
             ${DataConstants.PHONE_NUM}
@@ -200,7 +200,7 @@ export const GraphQLQueryParamStrings = {
     getActivity: function (activityId) {
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_ACTIVITY} ( ${DataConstants.ACTIVITY_ID}: ${activityId} ) {
             ${DataConstants.ACTIVITY_ID}
-            ${DataConstants.ACTIVITY_NAME}
+            ${DataConstants.NAME}
             ${DataConstants.DESCRIPTION}
             ${DataConstants.WEBSITE}
             ${DataConstants.SUPPORT_CONTACT}
@@ -372,6 +372,7 @@ export const GraphQLQueryParamStrings = {
             }
             paramString += `${DataConstants.PAYED}:${filter.selPayedFilter === DataConstants.PAYED}`
         }
+
         if (filter && (filter.selActivityFilter || filter.selLocationFilter || filter.selPayedFilter)){
             paramString += ")"
         }
@@ -396,6 +397,47 @@ export const GraphQLQueryParamStrings = {
                     ${DataConstants.PHONE_NUMBER}
                     ${DataConstants.MANAGER}
                     ${DataConstants.LOCATION_ID}
+                    ${DataConstants.TAX_RATE}
+                }${DataConstants.TRANSACTION}{
+                    ${DataConstants.TRASACTION_ID}
+                    ${DataConstants.SERVICE_NAME}
+                    ${DataConstants.DESCRIPTION}
+                    ${DataConstants.REF_ID}
+                    ${DataConstants.PAYMENT}
+                }
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
+    getSessionById: function (id) {
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_PLAY_SESSION_BY_ID}
+               (${DataConstants.SESSIONID}:${id})
+            {
+                ${DataConstants.SESSIONID}
+                ${DataConstants.START_DATE}
+                ${DataConstants.END_DATE}
+                ${DataConstants.USERID}
+                ${DataConstants.USERNAME}
+                ${DataConstants.FIRST_NAME}
+                ${DataConstants.LAST_NAME}
+                ${DataConstants.PAYED}
+                ${DataConstants.ACTIVITY}{
+                    ${DataConstants.NAME}
+                    ${DataConstants.COST_PER_MIN}
+                    ${DataConstants.SETUP_MINUTES}
+                    ${DataConstants.ACTIVITY_ID}
+                }${DataConstants.LOCATION}{
+                    ${DataConstants.NAME}
+                    ${DataConstants.PHONE_NUMBER}
+                    ${DataConstants.MANAGER}
+                    ${DataConstants.LOCATION_ID}
+                    ${DataConstants.TAX_RATE}
+                }${DataConstants.TRANSACTION}{
+                    ${DataConstants.TRASACTION_ID}
+                    ${DataConstants.SERVICE_NAME}
+                    ${DataConstants.DESCRIPTION}
+                    ${DataConstants.REF_ID}
+                    ${DataConstants.PAYMENT}
                 }
             }
         }`
