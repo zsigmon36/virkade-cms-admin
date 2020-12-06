@@ -13,6 +13,7 @@ class Login extends Component {
         this.signInCallBack = this.signInCallBack.bind(this)
         this.populateStore = this.populateStore.bind(this)
         this.updateInput = this.updateInput.bind(this)
+        this.clickNext = this.clickNext.bind(this)
     }
 
     state = {
@@ -48,13 +49,15 @@ class Login extends Component {
         this.validateInput({ [key]: value }, false)
     }
 
-    clickNext() {
+    clickNext(event) {
+        event.preventDefault()
         let { username, password } = this.props.user;
         let isValid = this.validateInput(this.props.user)
         if (isValid) {
             this.loading(true)
             DatabaseAPI.signIn(username, password, this.signInCallBack)
         }
+        
     }
 
     validateInput(data, isAlert = true) {
@@ -121,7 +124,9 @@ class Login extends Component {
                 <div className="modal-overlay">
                     <div className="modal">
                         <div className="main">
+                        
                             <button className="close-icon" style={{"minWidth": "unset" }} onClick={() => this.props.sharedFlagsAction({ showLogin: false })}>X</button>
+                            <form onSubmit={this.clickNext}>
                             <div className="row" style={{ alignSelf: "center" }}>
                                 <h1 style={{ margin: "5px" }}>::sign in::</h1>
                             </div>
@@ -130,22 +135,23 @@ class Login extends Component {
                             </div>
                             <div className="row">
                                 <p className="label">username:</p>
-                                <input className="input" type="text" name="username"
+                                <input autoFocus={true} className="input" type="text" name="username"
                                     onChange={this.updateInput} value={this.props.user.username} />
                             </div>
                             <div className="row">
                                 <p className="label">password:</p>
                                 <input className="input" name="password" type={this.state.isSecurity ? "password" : "text"}
                                     onChange={this.updateInput} value={this.props.user.password} />
-                                <button className="hyperlink" style={{"minWidth": "unset" }} onClick={() => this.toggleShowPw()}>
+                                <button className="hyperlink" type="button" style={{"minWidth": "unset" }} onClick={() => this.toggleShowPw()}>
                                     {this.state.pwToggleMsg}
                                 </button>
                             </div>
                             <div className='row'>
-                                <button onClick={() => this.clickNext()} >
+                                <button type="submit" >
                                     sign in
                             </button>
                             </div>
+                            </form>
                             <div className='row' style={{ alignSelf: "flex-end" }}>
                                 <button className="hyperlink" style={{ flexGrow: 1 }} onClick={() =>
                                     this.props.sharedFlagsAction({ showLogin: false })
@@ -154,6 +160,7 @@ class Login extends Component {
                             </button>
                             </div>
                         </div>
+                       
                     </div>
                 </div>
             </div>

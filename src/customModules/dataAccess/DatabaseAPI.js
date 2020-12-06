@@ -19,6 +19,14 @@ export const DatabaseAPI = {
         let query = GraphQLMutationParamStrings.addUserSession(session)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    deleteUserSession: function (userObj, sessionId, callback) {
+        let query = GraphQLMutationParamStrings.deleteUserSession(sessionId)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    updateUserSession: function (userObj, session, callback) {
+        let query = GraphQLMutationParamStrings.updateUserSession(session)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
     setNewPassword: function (userObj, callback) {
         let query = GraphQLMutationParamStrings.setNewPassword(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
@@ -115,6 +123,10 @@ export const DatabaseAPI = {
     },
     getAllSessions: function (userObj, filter, callback) {
         let query = GraphQLQueryParamStrings.getAllSessions(filter)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    getAllUserSessions: function (userObj, userId, filter, callback) {
+        let query = GraphQLQueryParamStrings.getAllUserSessions(userId, filter)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     getSessionById: function (userObj, id, callback) {

@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-//import userAction from '../../reduxActions/UserAction'
 import { pickerData } from '../../../static/pickerData';
 import { ROUTES } from '../../VirkadeAdminPages.js';
-import alertAction from '../../reduxActions/AlertAction.js';
-import searchFilterAction from '../../reduxActions/SearchFilterAction.js'
+import alertAction from '../../reduxActions/AlertAction.js'
 import sharedFlagsAction from '../../reduxActions/SharedFlagsAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -27,7 +25,8 @@ class SessionTableDisplay extends Component {
         transactionId: "",
         selectedSessions: [],
         selectedSessionIds: [],
-        sessions: this.props.parentState.rawSessions || {},
+        sessionElements: [],
+        rawSessions: {},
         transactionTotal: 0,
         serviceName: 0,
         refId: '',
@@ -98,7 +97,7 @@ class SessionTableDisplay extends Component {
             if (key.startsWith('payedStatus') && curState[key]) {
                 let curSelectSession = key.slice('payedStatus'.length, key.length)
                 payPanelVisible = true;
-                let session = this.state.sessions[curSelectSession];
+                let session = this.props.parentState.rawSessions[curSelectSession];
                 let startDate = moment(session.startDate, 'yyyy-MM-DD hh:mm:ss.S')
                 let endDate = moment(session.endDate, 'yyyy-MM-DD hh:mm:ss.S')
                 let duration = ((endDate.clone()).subtract(startDate.clone()) / 1000) / 60
@@ -183,11 +182,11 @@ class SessionTableDisplay extends Component {
                 )
             }
         }
-        this.setState({ [key]: value })
         this.setState({ payPanelVisible })
         this.setState({ selectedSessions })
         this.setState({ selectedSessionIds })
         this.setState({ transactionTotal })
+        this.setState({ [key]: value })
     }
 
     processPayment() {
@@ -224,21 +223,7 @@ class SessionTableDisplay extends Component {
     }
 
     render() {
-        let rawSessions = this.state.sessions
-        let filterSessions = {};
-        let { selActivityFilter, selLocationFilter, selPayedFilter } = this.props.searchFilter
-        Object.keys(rawSessions).map((key) => {
-            let sessionLocId = rawSessions[key].location.locationId
-            let sessionActId = rawSessions[key].activity.activityId
-            let filterActId = selActivityFilter === "" ? sessionActId : parseInt(selActivityFilter)
-            let filterLocId = selLocationFilter === "" ? sessionLocId : parseInt(selLocationFilter)
-            let notPayedFilter = selPayedFilter === "not payed"
-            let sessionPayed = rawSessions[key].payed
-            if (sessionLocId === filterLocId && sessionActId === filterActId && (!notPayedFilter || (!sessionPayed && notPayedFilter))) {
-                filterSessions[key] = rawSessions[key]
-            }
-            return true
-        })
+        let rawSessions = this.props.parentState.rawSessions
         return (
             <div className='border' style={{ display: 'block', width: '100%', padding: '0 10px 0 10px', margin: '0 10px 5px 10px', boxSizing: 'border-box' }}>
                 <h2>::sessions::</h2>
@@ -251,45 +236,44 @@ class SessionTableDisplay extends Component {
                     <div className='th'>location</div>
                     <div className='th'>activity</div>
                 </div>
-                {
-                    Object.keys(filterSessions).map((key, index) => (
 
-                        <div key={this.state.sessions[key].sessionId} className={`table row ${index % 2 === 0 ? 'alt' : 'reg'} ${this.state.sessions[key].payed ? 'bold' : ''}`}>
-                            <div className='tr' style={{ flexGrow: 0.5 }}>
-                                <input autoComplete='off' style={{ width: 50 }}
-                                    className={`checkBox ${index % 2 === 0 ? 'alt' : 'reg'} ${this.state.sessions[key].payed ? 'boldCheckbox' : ''}`}
-                                    type="text"
-                                    id={`payed-status-${this.state.sessions[key].sessionId}`}
-                                    name={`payedStatus${this.state.sessions[key].sessionId}`}
-                                    value={this.state.sessions[key].payed ? '[X]' : (this.state[`payedStatus${this.state.sessions[key].sessionId}`] ? '[X]' : '[ ]')}
-                                    onClick={this.state.sessions[key].payed ? this.payedSessionAlert : this.updateInput}
-                                    readOnly />
-                            </div>
-                            <div className='tr' style={{ flexGrow: 0.5 }}><Link to={{
-                                pathname: ROUTES.SESSION_PAGE,
-                                search: `?id=${this.state.sessions[key].sessionId}`
-                            }}>{this.state.sessions[key].sessionId}</Link></div>
-                            <div className='tr' style={{ flexGrow: 1.5 }} >{moment(this.state.sessions[key].startDate, 'yyyy-MM-DD hh:mm:ss.S').format('lll')}</div>
-                            <div className='tr' style={{ flexGrow: 1.5 }} >{moment(this.state.sessions[key].endDate, 'yyyy-MM-DD hh:mm:ss.S').format('lll')}</div>
-                            <div className='tr'><Link to={{
-                                pathname: ROUTES.LOCATION_PAGE,
-                                search: `?id=${this.state.sessions[key].location.locationId}`
-                            }}>{this.state.sessions[key].location.name}</Link></div>
-                            <div className='tr'><Link to={{
-                                pathname: ROUTES.ACTIVITY_PAGE,
-                                search: `?id=${this.state.sessions[key].activity.activityId}`
-                            }}>{this.state.sessions[key].activity.name}</Link></div>
-                        </div>
-
-                    ))
-                }
-                {(!this.state.sessions || Object.keys(this.state.sessions).length === 0) &&
-                    <div className='table row'>
+                {(!rawSessions || Object.keys(rawSessions).length === 0) &&
+                    <div key={-1} className='table row'>
                         <div className='th center'>:no sessions:</div>
                     </div>
                 }
+                {Object.keys(rawSessions).map((key, index) => (
 
-                <div className={`${this.props.right ? 'payment-panel-right' : 'payment-panel'} border`}
+                    <div key={rawSessions[key].sessionId} className={`table row ${index % 2 === 0 ? 'alt' : 'reg'} ${rawSessions[key].payed ? 'bold' : ''}`}>
+                        <div className='tr' style={{ flexGrow: 0.5 }}>
+                            <input autoComplete='off' style={{ width: 50 }}
+                                className={`checkBox ${index % 2 === 0 ? 'alt' : 'reg'} ${rawSessions[key].payed ? 'boldCheckbox' : ''}`}
+                                type="text"
+                                id={`payed-status-${rawSessions[key].sessionId}`}
+                                name={`payedStatus${rawSessions[key].sessionId}`}
+                                value={rawSessions[key].payed ? '[X]' : (this.state[`payedStatus${rawSessions[key].sessionId}`] ? '[X]' : '[ ]')}
+                                onClick={rawSessions[key].payed ? this.payedSessionAlert : this.updateInput}
+                                readOnly />
+                        </div>
+                        <div className='tr' style={{ flexGrow: 0.5 }}><Link to={{
+                            pathname: ROUTES.SESSION_PAGE,
+                            search: `?id=${rawSessions[key].sessionId}`
+                        }}>{rawSessions[key].sessionId}</Link></div>
+                        <div className='tr' style={{ flexGrow: 1.5 }} >{moment(rawSessions[key].startDate, 'yyyy-MM-DD hh:mm:ss.S').format('lll')}</div>
+                        <div className='tr' style={{ flexGrow: 1.5 }} >{moment(rawSessions[key].endDate, 'yyyy-MM-DD hh:mm:ss.S').format('lll')}</div>
+                        <div className='tr'><Link to={{
+                            pathname: ROUTES.LOCATION_PAGE,
+                            search: `?id=${rawSessions[key].location.locationId}`
+                        }}>{rawSessions[key].location.name}</Link></div>
+                        <div className='tr'><Link to={{
+                            pathname: ROUTES.ACTIVITY_PAGE,
+                            search: `?id=${rawSessions[key].activity.activityId}`
+                        }}>{rawSessions[key].activity.name}</Link></div>
+                    </div>
+                )
+                )}
+
+                <div className={`${this.props.right ? 'side-panel-right' : 'side-panel'} border`}
                     style={this.state.payPanelVisible ? (
                         this.props.right ? { right: 0 } : { left: 0 }
                     ) : (
@@ -364,18 +348,14 @@ class SessionTableDisplay extends Component {
 
 function mapStateToProps(state, ownProps) {
     return {
-        //user: state.user,
-        //sessions: ownProps.sessions
         searchFilter: state.searchFilter,
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        //actions: bindActionCreators(userAction, dispatch),
         sharedFlagsAction: bindActionCreators(sharedFlagsAction, dispatch),
         alertAction: bindActionCreators(alertAction, dispatch),
-        searchFilterAction: bindActionCreators(searchFilterAction, dispatch),
     }
 }
 

@@ -185,6 +185,7 @@ class User extends Component {
         this.validateInput({ [key]: value }, false)
         if (key === 'selUserId') {
             DatabaseAPI.getAllFieldsUserById(this.props.user, value, this.setUserDetails)
+            DatabaseAPI.getAllUserSessions(this.props.user, value, this.props.searchFilter, this.setUserDetails)
         }
     }
 
@@ -204,11 +205,6 @@ class User extends Component {
         if (data && data.getUserById) {
             let newState = Object.assign({}, this.state);
             let user = data.getUserById
-            let sessions = user.sessions
-            for (let index in sessions) {
-                let session = sessions[index];
-                newState.rawSessions[session.sessionId] = session
-            }
             let comments = user.comments
             if (user) {
                 Object.entries(user).forEach(([key, value]) => {
@@ -256,6 +252,15 @@ class User extends Component {
 
             this.setState(newState);
             this.setComments(comments)
+            this.loading(false)
+        }else if (data && data.getAllUserSessions) {
+            let sessions = data.getAllUserSessions
+            let rawSessions = {}
+            for (let index in sessions) {
+                let session = sessions[index];
+                rawSessions[session.sessionId] = session
+            }
+            this.setState({rawSessions: rawSessions});
             this.loading(false)
         } else if (error) {
             console.error(`hmmm... \nlooks like something went wrong.  \n${error[0].message}`)
@@ -313,7 +318,7 @@ class User extends Component {
                     </div>
                 </div>
             ,
-            modalOnSubmit: () => DatabaseAPI.addUserComment(this.props.user, this.state, this.confirmationAlert),
+            modalOnSubmit: () => this.persistComment(),
             modalOnClose: this.closeModal,
             modalIsOpen: true
         });
@@ -322,6 +327,15 @@ class User extends Component {
     closeModal() {
         this.setState({ modalIsOpen: false })
     }
+
+    persistComment(){
+        let user = Object.assign({}, this.state);
+        if (user.commentContent && user.commentContent !== ''){
+            this.loading(true)
+            DatabaseAPI.addUserComment(this.props.user, user, this.confirmationAlert)
+        }
+    }
+    
 
     demotePromote() {
         this.loading(true)
@@ -414,7 +428,7 @@ class User extends Component {
                 <ConfirmationModal isOpen={this.state.modalIsOpen} title={this.state.modalTitle} body={this.state.modalBody} onClose={this.state.modalOnClose} parentState={this.state} onSubmit={this.state.modalOnSubmit} />
                 <div className='section'>
                     < div className='row'>
-                        <div className='col border' style={{ flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
+                        <div className='col border' style={{ minWidth:'33%', flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::user details::</h2>
                             <div className='separator'></div>
 
@@ -761,6 +775,7 @@ class User extends Component {
 function mapStateToProps(state, ownProps) {
     return {
         user: state.user,
+        searchFilter: state.searchFilter,
     }
 }
 

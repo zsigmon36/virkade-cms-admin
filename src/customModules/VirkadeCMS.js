@@ -45,7 +45,7 @@ class VirkadeCMS extends Component {
   }
   render() {
     return (
-      <div style={{ width: '100%' }}>
+      <div style={{flexGrow: 1 }}>
         <CustomAlert isOpen={this.props.sharedFlags.alertOpen} type={this.props.alert.type} msg={this.props.alert.msg} onClose={() => this.closeCallback} />
         <Loader loading={this.props.sharedFlags.loading} />
         <VirkadeAdminPages />

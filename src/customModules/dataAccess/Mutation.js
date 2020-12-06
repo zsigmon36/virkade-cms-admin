@@ -232,6 +232,36 @@ export const GraphQLMutationParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
+    updateUserSession: function (fields) {
+
+        let query = `${DataConstants.MUTATION} { ${DataConstants.UPDATE_USER_SESSION}
+            (
+                ${DataConstants.INPUT_PLAY_SESSION}: {
+                    ${DataConstants.SESSIONID}:${fields.sessionId},
+                    ${DataConstants.TRASACTION_ID}:${fields.transactionId},
+                    ${DataConstants.START_DATE}:"${fields.startDate}",
+                    ${DataConstants.END_DATE}:"${fields.endDate}",
+                    ${DataConstants.LOCATION_NAME}:"${fields.locationName}",
+                    ${DataConstants.ACTIVITY_NAME}:"${fields.activityName}",
+                    ${DataConstants.PAYED}:${fields.payed},
+                    ${DataConstants.USERNAME}:"${fields.username}"
+                }
+            )
+            {
+                ${DataConstants.SESSIONID}
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
+    deleteUserSession: function (id) {
+        let query = `${DataConstants.MUTATION} { ${DataConstants.DELETE_USER_SESSION}
+               (${DataConstants.SESSIONID}:${id})
+            {
+                ${DataConstants.SESSIONID}
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
     addUpdateLocation: function (fields) {
         let query = `${DataConstants.MUTATION} { ${DataConstants.ADD_UPDATE_LOCATION}
                 (

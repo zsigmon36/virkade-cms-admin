@@ -19,6 +19,7 @@ class Search extends Component {
         this.setUserRows = this.setUserRows.bind(this)
         this.setPickerSates = this.setPickerSates.bind(this);
         this.updateFilterInput = this.updateFilterInput.bind(this)
+        this.search = this.search.bind(this)
         this.state = {
             searchedUsers: [],
         }
@@ -99,11 +100,12 @@ class Search extends Component {
         this.setState({ 'pickerStates': pickerItems })
     }
 
-    search() {
+    search(event) {
         if (this.validateInput(this.props.searchFilter, true)) {
             this.loading(true)
             DatabaseAPI.searchUsers(this.props.user, this.props.searchFilter, this.setUserRows)
         }
+        event.preventDefault()
     }
 
     setUserRows(data, error) {
@@ -179,81 +181,83 @@ class Search extends Component {
             <div className='wrapper'>
                 <Header history={this.props.history} />
                 <TabNav tabData={this.tabData} />
-                <div className='section border alt' style={{ padding: 20 }}>
-                    <div key="0" className='row'>
-                        <h3 className='col even-space' style={{ textAlign: 'center' }}>
-                            {this.state.validatorMsg}
-                        </h3>
-                        <div className='col'>
-                            <button className="alt hyperlink" onClick={() => this.updateFilterInput("resetDefaults")}>clear filters</button>
-                        </div>
-                    </div>
-                    <div key="1" className='row'>
-                        <div className='col even-space'>
-                            <div className='row' style={{ width: '100%' }}>
-                                <label htmlFor="fname">first name: </label>
-                                <input autoComplete='off' className='alt' type="text" id="fname" name="fnameFilter" value={this.props.searchFilter.fnameFilter} onChange={this.updateFilterInput} />
+                <form onSubmit={this.search}>
+                    <div className='section border alt' style={{ padding: 20 }}>
+                        <div key="0" className='row'>
+                            <h3 className='col even-space' style={{ textAlign: 'center' }}>
+                                {this.state.validatorMsg}
+                            </h3>
+                            <div className='col'>
+                                <button className="alt hyperlink" type='button' onClick={() => this.updateFilterInput("resetDefaults")}>clear filters</button>
                             </div>
                         </div>
-                        <div className='col even-space'>
-                            <div className='row' style={{ width: '100%' }}>
-                                <label htmlFor="lname">last name:</label>
-                                <input autoComplete='off' className='alt' type="text" id="lname" name="lnameFilter" value={this.props.searchFilter.lnameFilter} onChange={this.updateFilterInput} />
-                            </div>
-                        </div>
-                        <div className='col even-space'>
-                            <div className='row' style={{ width: '100%' }}>
-                                <label htmlFor="email">email address:</label>
-                                <input autoComplete='off' className='alt' type="text" id="email" name="emailFilter" value={this.props.searchFilter.emailFilter} onChange={this.updateFilterInput} />
-                            </div>
-                        </div>
-                        <div className='col even-space'>
-                            <div className='row' style={{ width: '100%' }}>
-                                <label htmlFor="username">username:</label>
-                                <input autoComplete='off' className='alt' type="text" id="username" name="usernameFilter" value={this.props.searchFilter.usernameFilter} onChange={this.updateFilterInput} />
-                            </div>
-                        </div>
-                    </div>
-                    <div key="2" className='row'>
-                        <h4>address:</h4>
-                        <div className="border row even-space" style={{ padding: 10, margin: 20 }} >
+                        <div key="1" className='row'>
                             <div className='col even-space'>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <label htmlFor="street">street:</label>
-                                    <input autoComplete='off' className='alt' type="text" id="street" name="streetFilter" value={this.props.searchFilter.streetFilter} onChange={this.updateFilterInput} />
+                                    <label htmlFor="fname">first name: </label>
+                                    <input autoComplete='off' className='alt' type="text" id="fname" name="fnameFilter" value={this.props.searchFilter.fnameFilter} onChange={this.updateFilterInput} />
                                 </div>
                             </div>
                             <div className='col even-space'>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <label htmlFor="city">city:</label>
-                                    <input autoComplete='off' className='alt' type="text" id="city" name="cityFilter" value={this.props.searchFilter.cityFilter} onChange={this.updateFilterInput} />
+                                    <label htmlFor="lname">last name:</label>
+                                    <input autoComplete='off' className='alt' type="text" id="lname" name="lnameFilter" value={this.props.searchFilter.lnameFilter} onChange={this.updateFilterInput} />
                                 </div>
                             </div>
                             <div className='col even-space'>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <select className='alt' id='state-filter' name='selStateFilter' value={this.props.searchFilter.selStateFilter} onChange={this.updateFilterInput} >
-                                        <option key='0' value={0}>state</option>
-                                        {this.state.pickerStates}
-                                    </select>
+                                    <label htmlFor="email">email address:</label>
+                                    <input autoComplete='off' className='alt' type="text" id="email" name="emailFilter" value={this.props.searchFilter.emailFilter} onChange={this.updateFilterInput} />
                                 </div>
                             </div>
                             <div className='col even-space'>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <label htmlFor="zip">zip:</label>
-                                    <input autoComplete='off' className='alt' type="text" id="zip" name="zipFilter" value={this.props.searchFilter.zipFilter} onChange={this.updateFilterInput} />
+                                    <label htmlFor="username">username:</label>
+                                    <input autoComplete='off' className='alt' type="text" id="username" name="usernameFilter" value={this.props.searchFilter.usernameFilter} onChange={this.updateFilterInput} />
                                 </div>
                             </div>
                         </div>
-                        <div className='col'>
-                            <button onClick={() => this.search()} >
-                                search
+                        <div key="2" className='row'>
+                            <h4>address:</h4>
+                            <div className="border row even-space" style={{ padding: 10, margin: 20 }} >
+                                <div className='col even-space'>
+                                    <div className='row' style={{ width: '100%' }}>
+                                        <label htmlFor="street">street:</label>
+                                        <input autoComplete='off' className='alt' type="text" id="street" name="streetFilter" value={this.props.searchFilter.streetFilter} onChange={this.updateFilterInput} />
+                                    </div>
+                                </div>
+                                <div className='col even-space'>
+                                    <div className='row' style={{ width: '100%' }}>
+                                        <label htmlFor="city">city:</label>
+                                        <input autoComplete='off' className='alt' type="text" id="city" name="cityFilter" value={this.props.searchFilter.cityFilter} onChange={this.updateFilterInput} />
+                                    </div>
+                                </div>
+                                <div className='col even-space'>
+                                    <div className='row' style={{ width: '100%' }}>
+                                        <select className='alt' id='state-filter' name='selStateFilter' value={this.props.searchFilter.selStateFilter} onChange={this.updateFilterInput} >
+                                            <option key='0' value={0}>state</option>
+                                            {this.state.pickerStates}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className='col even-space'>
+                                    <div className='row' style={{ width: '100%' }}>
+                                        <label htmlFor="zip">zip:</label>
+                                        <input autoComplete='off' className='alt' type="text" id="zip" name="zipFilter" value={this.props.searchFilter.zipFilter} onChange={this.updateFilterInput} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col'>
+                                <button type='submit' >
+                                    search
                             </button>
-                        </div>
+                            </div>
+                        </div >
                     </div >
-                </div >
-                <div className='section border'>
-                    {this.state.searchedUsers}
-                </div>
+                    <div className='section border'>
+                        {this.state.searchedUsers}
+                    </div>
+                </form>
             </div >
         );
     }

@@ -129,23 +129,6 @@ export const GraphQLQueryParamStrings = {
                         ${DataConstants.CREATED_AT}
                     }
                 }
-                ${DataConstants.SESSIONS} {
-                    ${DataConstants.SESSIONID}
-                        ${DataConstants.LOCATION} {
-                            ${DataConstants.NAME}
-                            ${DataConstants.LOCATION_ID}
-                            ${DataConstants.TAX_RATE}
-                    }
-                    ${DataConstants.PAYED}
-                        ${DataConstants.ACTIVITY} {
-                            ${DataConstants.NAME}
-                            ${DataConstants.ACTIVITY_ID}
-                            ${DataConstants.COST_PER_MIN}
-                            ${DataConstants.SETUP_MINUTES}
-                    }
-                    ${DataConstants.START_DATE}
-                    ${DataConstants.END_DATE}    
-                }
             }
         }`
         return query; //.replace(/\s/g, '');
@@ -409,6 +392,52 @@ export const GraphQLQueryParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
+    getAllUserSessions: function (userId, filter) {
+        let paramString = ""
+        paramString += `(${DataConstants.USERID}:${userId},${DataConstants.DATE_REQUESTED}:"2019-01-01 00:00:00.0"`
+        if (filter && filter.selActivityFilter){
+            paramString += `, ${DataConstants.ACTIVITY_ID}:${filter.selActivityFilter}`
+        }
+        if (filter && filter.selLocationFilter){
+            paramString += `, ${DataConstants.LOCATION_ID}:${filter.selLocationFilter}`
+        }
+        if (filter && filter.selPayedFilter && filter.selPayedFilter !== ''){
+            paramString += `, ${DataConstants.PAYED}:${filter.selPayedFilter === DataConstants.PAYED}`
+        }
+            paramString += ")"
+        let query = `${DataConstants.QUERY} { ${DataConstants.GET_ALL_USER_PLAY_SESSIONS}
+                ${paramString}
+            {
+                ${DataConstants.SESSIONID}
+                ${DataConstants.START_DATE}
+                ${DataConstants.END_DATE}
+                ${DataConstants.USERID}
+                ${DataConstants.USERNAME}
+                ${DataConstants.FIRST_NAME}
+                ${DataConstants.LAST_NAME}
+                ${DataConstants.PAYED}
+                ${DataConstants.ACTIVITY}{
+                    ${DataConstants.NAME}
+                    ${DataConstants.COST_PER_MIN}
+                    ${DataConstants.SETUP_MINUTES}
+                    ${DataConstants.ACTIVITY_ID}
+                }${DataConstants.LOCATION}{
+                    ${DataConstants.NAME}
+                    ${DataConstants.PHONE_NUMBER}
+                    ${DataConstants.MANAGER}
+                    ${DataConstants.LOCATION_ID}
+                    ${DataConstants.TAX_RATE}
+                }${DataConstants.TRANSACTION}{
+                    ${DataConstants.TRASACTION_ID}
+                    ${DataConstants.SERVICE_NAME}
+                    ${DataConstants.DESCRIPTION}
+                    ${DataConstants.REF_ID}
+                    ${DataConstants.PAYMENT}
+                }
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
     getSessionById: function (id) {
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_PLAY_SESSION_BY_ID}
                (${DataConstants.SESSIONID}:${id})
@@ -436,6 +465,7 @@ export const GraphQLQueryParamStrings = {
                     ${DataConstants.TRASACTION_ID}
                     ${DataConstants.SERVICE_NAME}
                     ${DataConstants.DESCRIPTION}
+                    ${DataConstants.SESSION_IDS}
                     ${DataConstants.REF_ID}
                     ${DataConstants.PAYMENT}
                 }

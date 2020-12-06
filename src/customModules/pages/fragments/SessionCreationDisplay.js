@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
-//import userAction from '../../reduxActions/UserAction'
-import { pickerData } from '../../../static/pickerData';
-import { ROUTES } from '../../VirkadeAdminPages.js';
 import alertAction from '../../reduxActions/AlertAction.js';
 import searchFilterAction from '../../reduxActions/SearchFilterAction.js'
 import sharedFlagsAction from '../../reduxActions/SharedFlagsAction.js'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link } from "react-router-dom"
 import moment from "moment";
 import validator from 'validator';
 import { DatabaseAPI } from '../../dataAccess/DatabaseAPI';
@@ -32,9 +28,8 @@ class SessionCreationDisplay extends Component {
         selAvilSessionTime: 0,
     }
     componentDidMount() {
-        DatabaseAPI.getAvailableSessions(this.props.parent.props.user, this.props.searchFilter, this.setSessionOptions)
     }
-    componentDidUpdate() {
+    componentDidUpdate(oldProps) {
         if (this.state.userId !== this.props.parent.state.userId) {
             let newState = this.state
             newState.userId = this.props.parent.state.userId;
@@ -42,6 +37,9 @@ class SessionCreationDisplay extends Component {
             newState.firstName = this.props.parent.state.firstName;
             newState.lastName = this.props.parent.state.lastName;
             this.setState({ state: newState })
+        } 
+        if (this.props.panelVisible && oldProps.panelVisible !== this.props.panelVisible){
+            DatabaseAPI.getAvailableSessions(this.props.parent.props.user, this.props.searchFilter, this.setSessionOptions)
         }
     }
 
@@ -135,6 +133,7 @@ class SessionCreationDisplay extends Component {
             this.props.alertAction({ msg: `session has been scheduled, \nsession Id: ${data.addUserSession.sessionId} ` })
             this.props.sharedFlagsAction({ alertOpen: true });
             DatabaseAPI.getAvailableSessions(this.props.parent.props.user, this.props.searchFilter, this.setSessionOptions)
+            DatabaseAPI.getAllUserSessions(this.props.parent.props.user, this.props.parent.state.selUserId, this.props.searchFilter, this.props.parent.setUserDetails)
         } else if (error) {
             this.props.alertAction({ type: 'error' })
             this.props.alertAction({ msg: `hmmm... \nlooks like something went wrong. \n${error[0].message}` })
@@ -160,8 +159,8 @@ class SessionCreationDisplay extends Component {
 
         return (
 
-            <div className='border' style={{ display: 'block', width: '100%', padding: '0 10px 0 10px', margin: '0 10px 5px 10px', boxSizing: 'border-box' }}>
-                <div className={`${this.props.right ? 'payment-panel-right' : 'payment-panel'} border`}
+            <div className='border' style={{ display: 'block', padding: '0 10px 0 10px', margin: '0 10px 5px 10px', boxSizing: 'border-box' }}>
+                <div className={`${this.props.right ? 'side-panel-right' : 'side-panel'} border`}
                     style={this.props.panelVisible ? (
                         this.props.right ? { right: 0 } : { left: 0 }
                     ) : (
