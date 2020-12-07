@@ -16,6 +16,7 @@ class BasicAccount extends Component {
         this.setSecurityQ = this.setSecurityQ.bind(this)
         this.checkSecurityA = this.checkSecurityA.bind(this)
         this.nextPage = this.nextPage.bind(this)
+        this.updateInput = this.updateInput.bind(this)
     }
 
     state = {
@@ -25,11 +26,10 @@ class BasicAccount extends Component {
         pwToggleMsg: "[show]",
         isSecuritySa: true,
         saToggleMsg: "[show]",
-        loading: true,
     }
 
     componentDidMount() {
-        this.setState({ loading: false })
+        this.loading(false)
     }
     loading(data) {
         let loading = data || false;
@@ -56,14 +56,17 @@ class BasicAccount extends Component {
         }
     }
 
-    updateInput = (data) => {
-        this.props.userActions(data)
-        this.validateInput(data, false)
+    updateInput(event) {
+        let key = event.target.name
+        let value = event.target.value
+        this.props.userActions({ [key]: value })
+        this.validateInput({ [key]: value }, false)
     }
 
     setSecurityQ(data, error) {
         if (data && data.getUserByUsername) {
-            this.updateInput({ "securityQuestion": data.getUserByUsername.securityQuestion })
+            let event = { target: { name: "securityQuestion", value: [data.getUserByUsername.securityQuestion] } }
+            this.updateInput(event)
             this.setState({ step: 2 });
         } else if (error) {
             this.props.alertAction({ type: 'error' })
@@ -118,10 +121,10 @@ class BasicAccount extends Component {
         let msg = '';
         let valid = true
         if (username !== undefined && (username === "" || username.length < 6)) {
-            msg = 'username is too short'
+            msg = 'username must be more than 6 characters'
             valid = false;
         } else if (password !== undefined && (password === "" || password.length < 8)) {
-            msg = 'password is too short'
+            msg = 'password must be more than 8 characters'
             valid = false;
         } else if (securityAnswer !== undefined && securityAnswer === "") {
             msg = 'security answer cannot be empty'
@@ -143,77 +146,74 @@ class BasicAccount extends Component {
     render() {
         return (
             <div className="wrapper">
-                <Header history={this.props.history} />
-                <div className="body">
-                    <div className="main">
-                        <h2>
-                            <p className="label">{this.state.validatorMsg}</p>
-                        </h2>
-                        <div className="row">
-                            <h1>::recover account::</h1>
+                <Header history={this.props.history} curModule={this} />
+                <div className='section'>
+                    <div className='row even-space'>
+                        <h4>{this.state.validatorMsg}</h4>
+                    </div>
+                    <div className="row">
+                        <div className='col border' style={{ flexGrow: 0.2, padding: '0 10px 0 10px', margin: '0 10px 0 10px' }}>
+                            <h2>::recover account::</h2>
+                            <div className='separator'></div>
+
+                            {this.state.step === 1 &&
+                                <div className="row even-space" style={{ width: '80%' }}>
+                                    <label htmlFor="username" >username:</label>
+                                    <input id="username" name="username" className="input" onChange={this.updateInput} value={this.props.user.username} />
+                                </div>
+                            }
+                            {this.state.step === 2 &&
+                                <div className="row even-space" style={{ width: '80%' }}>
+                                    <label htmlFor="securityQuestion" >security q:</label>
+                                    <input id="security-question" name="securityQuestion" className="input" onChange={this.updateInput} value={this.props.user.securityQuestion} readOnly />
+                                </div>
+                            }
+                            {this.state.step === 2 &&
+                                <div className="row even-space" style={{ width: '80%' }}>
+                                    <label htmlFor="securityAnswer" >security a:</label>
+                                    <input id="security-answer" name="securityAnswer" className="input" type={this.state.isSecuritySa ? "password" : "text"} onChange={this.updateInput} value={this.props.user.securityAnswer} />
+                                    <button className="hyperlink" type="button" onClick={() => this.toggleShowSa()}>
+                                        {this.state.saToggleMsg}
+                                    </button>
+                                </div>
+                            }
+                            {this.state.step === 3 &&
+                                <div className="row even-space" style={{ width: '80%' }}>
+                                    <label htmlFor="password" >new password:</label>
+                                    <input id="password" name="password" className="input" type={this.state.isSecurityPw ? "password" : "text"} onChange={this.updateInput} value={this.props.user.password} />
+                                    <button className="hyperlink" type="button" onClick={() => this.toggleShowPw()}>
+                                        {this.state.pwToggleMsg}
+                                    </button>
+                                </div>
+                            }
+                            {this.state.step === 3 &&
+                                <div className="row" style={{ width: '80%' }}>
+                                    <label htmlFor="passcode" >passcode:</label>
+                                    <input id="passcode" name="passcode" className="input" onChange={this.updateInput} value={this.props.user.passcode} />
+                                </div>
+                            }
+                            {this.state.step === 1 &&
+                                <div className="row" style={{ width: '80%' }}>
+                                    <button style={{ 'flexGrow': 1 }} onClick={() => this.validateInput({ username: this.props.user.username }) && this.loading(true) && DatabaseAPI.getSecurityQ(this.props.user.username, this.setSecurityQ)}>
+                                        get security question
+                                    </button>
+                                </div>
+                            }
+                            {this.state.step === 2 &&
+                                <div className="row" style={{ width: '80%' }}>
+                                    <button style={{ 'flexGrow': 1 }} onClick={() => this.validateInput({ securityAnswer: this.props.user.securityAnswer }) && this.loading(true) && DatabaseAPI.checkSecurityA(this.props.user, this.checkSecurityA)}>
+                                        submit security answer
+                                </button>
+                                </div>
+                            }
+                            {this.state.step === 3 &&
+                                <div className="row" style={{ width: '80%' }}>
+                                    <button style={{ 'flexGrow': 1 }} onClick={() => this.validateInput({ password: this.props.user.password }) && this.loading(true) && DatabaseAPI.setNewPassword(this.props.user, this.nextPage)}>
+                                        change password
+                                </button>
+                                </div>
+                            }
                         </div>
-                        {this.state.step === 1 &&
-                            <div className="row">
-                                <p className="label">username:</p>
-                                <input className="input" onChangetext={(username) =>
-                                    this.updateInput({ username: username })} value={this.props.user.username} />
-                            </div>
-                        }
-                        {this.state.step === 2 &&
-                            <div className="row">
-                                <p className="label">security q: {this.props.user.securityQuestion}</p>
-                            </div>
-                        }
-                        {this.state.step === 2 &&
-                            <div className="row">
-                                <p className="label">security a:</p>
-                                <input className="input" type={this.state.isSecuritySa? "password" : "text"} onChangetext={(securityAnswer) =>
-                                    this.updateInput({ securityAnswer: securityAnswer })} value={this.props.user.securityAnswer} />
-                                <button onClick={() => this.toggleShowSa()}>
-                                    {this.state.saToggleMsg}
-                                </button>
-                            </div>
-                        }
-                        {this.state.step === 3 &&
-                            <div className="row">
-                                <p className="label">new password:</p>
-                                <input className="input" type={this.state.isSecurityPw? "password" : "text"} onChangetext={(password) =>
-                                    this.updateInput({ password: password })} value={this.props.user.password} />
-                                <button onClick={() => this.toggleShowPw()}>
-                                    {this.state.pwToggleMsg}
-                                </button>
-                            </div>
-                        }
-                        {this.state.step === 3 &&
-                            <div className="row">
-                                <p className="label">passcode:</p>
-                                <input className="input" onChangetext={(passcode) =>
-                                    this.updateInput({ passcode: passcode })} value={this.props.user.passcode} />
-                            </div>
-                        }
-                        {this.state.step === 1 &&
-                            <div className="row">
-                                <button onClick={() => this.validateInput({ username: this.props.user.username }) && this.loading(true) && DatabaseAPI.getSecurityQ(this.props.user.username, this.setSecurityQ)}>
-                                    <div className="next">
-                                        <p className="label">get security question</p>
-                                    </div>
-                                </button>
-                            </div>
-                        }
-                        {this.state.step === 2 &&
-                            <div className="row">
-                                <button onClick={() => this.validateInput({ securityAnswer: this.props.user.securityAnswer }) && this.loading(true) && DatabaseAPI.checkSecurityA(this.props.user, this.checkSecurityA)}>
-                                    submit security answer
-                                </button>
-                            </div>
-                        }
-                        {this.state.step === 3 &&
-                            <div className="row">
-                                <button onClick={() => this.validateInput({ password: this.props.user.password }) && this.loading(true) && DatabaseAPI.setNewPassword(this.props.user, this.nextPage)}>
-                                    change password
-                                </button>
-                            </div>
-                        }
                     </div>
                 </div>
             </div>

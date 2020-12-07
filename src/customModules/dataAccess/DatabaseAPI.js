@@ -71,6 +71,10 @@ export const DatabaseAPI = {
         let query = GraphQLMutationParamStrings.addUpdateTransaction(fields)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    checkSecurityA: function (userObj, callback) {
+        let query = GraphQLMutationParamStrings.checkSecurityA(userObj)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
 
     //Queries 
     getUserByUserName: function (userObj, callBack) {
@@ -108,10 +112,6 @@ export const DatabaseAPI = {
     getSecurityQ: function (username, callback) {
         let query = GraphQLQueryParamStrings.getSecurityQ(username)
         return dataFetch(query, username, '', callback)
-    },
-    checkSecurityA: function (userObj, callback) {
-        let query = GraphQLQueryParamStrings.checkSecurityA(userObj)
-        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     getAvailableSessions: function (userObj, filter, callback) {
         let query = GraphQLQueryParamStrings.getAvailableSessions(filter)
