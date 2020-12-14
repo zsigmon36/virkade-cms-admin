@@ -104,7 +104,9 @@ export const GraphQLMutationParamStrings = {
         let city = userObj.city;
         let state = userObj.selState
         let postalCode = userObj.postalCode
-
+        if (state === undefined || state === null) {
+            state = 0
+        }
         if (unit === undefined) {
             unit = ''
         }

@@ -163,6 +163,9 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
     }).then(results => {
         let data = results.data;
         let errors = results.errors
+        if (errors){
+            console.error(errors)
+        }
         if (callBack) {
             callBack(data, errors)
         } else {
@@ -172,6 +175,7 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
         if (retries > 0) {
             dataFetch(queryString, username, authToken, callBack, --retries)
         } else {
+            console.error(error)
             if (callBack) {
                 callBack(error)
             } else {

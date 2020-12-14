@@ -438,7 +438,7 @@ class User extends Component {
                             <div className='row even-space' style={{ width: '75%' }}>
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="username" >user name:</label>
-                                    <input autoComplete='off' type="text" id="username" name="username" onChange={this.updateInput} value={this.state.username} readOnly />
+                                    <input autoComplete='off' type="text" id="username-user" name="username" onChange={this.updateInput} value={this.state.username} readOnly />
                                 </div>
                             </div>
 
@@ -473,13 +473,13 @@ class User extends Component {
                             <div className='row even-space' style={{ width: '75%' }}>
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="fistName">first name:</label>
-                                    <input autoComplete='off' type="text" id="first-name" name="firstName" value={this.state.firstName} onChange={this.updateInput} />
+                                    <input autoComplete='off' type="text" id="first-name-user" name="firstName" value={this.state.firstName} onChange={this.updateInput} />
                                 </div>
                             </div>
                             <div className='row even-space' style={{ width: '75%' }}>
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="lastName">last name:</label>
-                                    <input autoComplete='off' type="text" id="last-name" name="lastName" value={this.state.lastName} onChange={this.updateInput} />
+                                    <input autoComplete='off' type="text" id="last-name-user" name="lastName" value={this.state.lastName} onChange={this.updateInput} />
                                 </div>
                             </div>
 
@@ -615,7 +615,7 @@ class User extends Component {
                                         style={{ 'flexGrow': 1 }}
                                         value={this.state.selState}
                                         onChange={this.updateInput}>
-                                        <option id={0} value="" >select</option>
+                                        <option id={0} value={0}>select</option>
                                         {this.state.pickerStates}
                                     </select>
                                 </div>
