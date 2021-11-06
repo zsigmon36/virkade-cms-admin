@@ -20,19 +20,26 @@ class Header extends Component {
     this.permissionCheck = this.permissionCheck.bind(this)
     this.signOutCallBack = this.signOutCallBack.bind(this)
     this.updateFilterInput = this.updateFilterInput.bind(this)
+    this.validateSession = this.validateSession.bind(this)
   }
 
   componentDidMount() {
     let location = this.props.history.location;
     if (this.props.user.authToken && this.props.user.authToken.token !== "") {
-      DatabaseAPI.checkSession(this.props.user.authToken, this.permissionCheck)
+      let sessionCheck = setInterval(this.validateSession, (1 * 60 * 1000))
+      this.setState({ sessionCheck })
     } else if ((!this.props.user.authToken || this.props.user.authToken.token === "") && (location.pathname !== ROUTES.HOME_PAGE && location.pathname !== ROUTES.FORGOTPASS_PAGE)) {
       this.props.history.push(ROUTES.HOME_PAGE);
     }
   }
 
+  componentWillUnmount() {
+    clearInterval(this.state.sessionCheck)
+  }
+
   state = {
     payedFilter: false,
+    sessionCheck: function () { }
   }
 
   loading(data) {
@@ -47,6 +54,9 @@ class Header extends Component {
     this.props.searchFilterAction({ [key]: value })
     this.props.history.push({ pathname: ROUTES.BASE_PAGE })
     this.props.history.goBack();
+  }
+  validateSession(){
+    DatabaseAPI.checkSession(this.props.user.authToken, this.permissionCheck)
   }
 
   permissionCheck(data) {
