@@ -54,7 +54,7 @@ export const GraphQLQueryParamStrings = {
                 ${DataConstants.HEIGHT}
                 ${DataConstants.WEIGHT}
                 ${DataConstants.IDP}
-                ${DataConstants.EMAIL_VERIFIED}
+                ${DataConstants.ACCOUNT_VERIFIED}
                 ${DataConstants.PLAYED_BEFORE}
                 ${DataConstants.REAL_ESTATE_SERVICE}
                 ${DataConstants.CAN_CONTACT}
@@ -113,7 +113,7 @@ export const GraphQLQueryParamStrings = {
                 ${DataConstants.HEIGHT}
                 ${DataConstants.WEIGHT}
                 ${DataConstants.IDP}
-                ${DataConstants.EMAIL_VERIFIED}
+                ${DataConstants.ACCOUNT_VERIFIED}
                 ${DataConstants.PLAYED_BEFORE}
                 ${DataConstants.REAL_ESTATE_SERVICE}
                 ${DataConstants.CAN_CONTACT}

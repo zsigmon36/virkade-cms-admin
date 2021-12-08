@@ -32,12 +32,14 @@ const defaultLocalState = {
     idp: 0,
     securityQuestion: '',
     securityAnswer: '',
-    emailVerified: false,
+    accountVerified: false,
     playedBefore: false,
     reServices: false,
     canContact: false,
     liableAgree: false,
     tcAgree: false,
+    ActiveTCLegal: {},
+    ActiveLiabLegal: {},
     statusId: 0,
 
     generalComments: [],
@@ -695,8 +697,8 @@ class User extends Component {
 
                             <div className='row even-space' style={{ width: '75%' }}>
                                 <div className='row' style={{ width: '100%' }}>
-                                    <label style={{ 'width': 300 }} htmlFor="emailVerified">email is verified </label>
-                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="email-verified" name="emailVerified" value={this.state.emailVerified ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
+                                    <label style={{ 'width': 300 }} htmlFor="accountVerified">account verified </label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="account-verified" name="accountVerified" value={this.state.accountVerified ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
                                 </div>
                             </div>
 

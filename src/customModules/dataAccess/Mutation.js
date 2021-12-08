@@ -70,7 +70,7 @@ export const GraphQLMutationParamStrings = {
                     ${DataConstants.HEIGHT}:${height},
                     ${DataConstants.WEIGHT}:${parseInt(weight)},      
                     ${DataConstants.IDP}:${parseFloat(userObj.idp)},
-                    ${DataConstants.EMAIL_VERIFIED}:${userObj.emailVerified},
+                    ${DataConstants.ACCOUNT_VERIFIED}:${userObj.accountVerified},
                     ${DataConstants.PLAYED_BEFORE}:${userObj.playedBefore},
                     ${DataConstants.TC_AGREE}:${userObj.tcAgree},
                     ${DataConstants.LIABLE_AGREE}:${userObj.liableAgree},

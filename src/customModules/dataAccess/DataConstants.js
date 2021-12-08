@@ -1,11 +1,3 @@
-//connection details - probs move to config file
-//export const HOST = '192.168.1.240'
-//export const HOST = '192.168.1.7' //move property
-export const HOST = '192.168.1.24'//move property
-export const PORT = '80' //move to property
-export const API_ADDRESS = '/service'
-export const PROTOCOL = 'http'
-
 //queries
 export const QUERY = 'query'
 export const GET_ALL_STATES = 'getAllStates'
@@ -72,7 +64,7 @@ export const AGE = 'age'
 export const HEIGHT = 'height'
 export const WEIGHT = 'weight'
 export const IDP = 'idp'
-export const EMAIL_VERIFIED = 'emailVerified'
+export const ACCOUNT_VERIFIED = 'accountVerified'
 export const PLAYED_BEFORE = 'playedBefore'
 export const REAL_ESTATE_SERVICE = 'reServices'
 export const LIABLE_AGREE = 'liableAgree'

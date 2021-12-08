@@ -1,9 +1,9 @@
-import * as DataConstants from "./DataConstants"
+import {connection} from '../../static/props.js';
 import { GraphQLQueryParamStrings } from "./Query"
 import { GraphQLMutationParamStrings } from "./Mutation"
 
 
-let cmsGraphQLHost = `${DataConstants.PROTOCOL}://${DataConstants.HOST}:${DataConstants.PORT}${DataConstants.API_ADDRESS}`
+let cmsGraphQLHost = `${connection.PROTOCOL}://${connection.HOST}:${connection.PORT}${connection.API_ADDRESS}`
 
 export const DatabaseAPI = {
     //Mutations
