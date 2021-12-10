@@ -118,7 +118,20 @@ export const GraphQLQueryParamStrings = {
                 ${DataConstants.REAL_ESTATE_SERVICE}
                 ${DataConstants.CAN_CONTACT}
                 ${DataConstants.LIABLE_AGREE}
+                ${DataConstants.MINOR}
                 ${DataConstants.TC_AGREE}
+
+                ${DataConstants.ACTIVE_TC_LEGAL} {
+                    ${DataConstants.MINOR}
+                    ${DataConstants.PSIG}
+                    ${DataConstants.GSIG}
+                }
+                ${DataConstants.ACTIVE_LIAB_LEGAL} {
+                    ${DataConstants.MINOR}
+                    ${DataConstants.PSIG}
+                    ${DataConstants.GSIG}
+                }
+
                 ${DataConstants.COMMENTS} {
                     ${DataConstants.COMMENT_CONTENT}
                     ${DataConstants.TYPE} {
@@ -447,6 +460,7 @@ export const GraphQLQueryParamStrings = {
                 ${DataConstants.END_DATE}
                 ${DataConstants.USERID}
                 ${DataConstants.USERNAME}
+                ${DataConstants.DISPLAY_NAME}
                 ${DataConstants.FIRST_NAME}
                 ${DataConstants.LAST_NAME}
                 ${DataConstants.PAYED}

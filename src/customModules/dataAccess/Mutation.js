@@ -226,6 +226,7 @@ export const GraphQLMutationParamStrings = {
                     ${DataConstants.ACTIVITY_NAME}:"${session.activity.name}",
                     ${DataConstants.PAYED}:false,
                     ${DataConstants.USERNAME}:"${session.username}"
+                    ${DataConstants.DISPLAY_NAME}:"${session.displayName}"
                 }
             )
             {
@@ -247,6 +248,7 @@ export const GraphQLMutationParamStrings = {
                     ${DataConstants.ACTIVITY_NAME}:"${fields.activityName}",
                     ${DataConstants.PAYED}:${fields.payed},
                     ${DataConstants.USERNAME}:"${fields.username}"
+                    ${DataConstants.DISPLAY_NAME}:"${fields.displayName}"
                 }
             )
             {

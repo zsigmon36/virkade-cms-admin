@@ -38,8 +38,9 @@ const defaultLocalState = {
     canContact: false,
     liableAgree: false,
     tcAgree: false,
-    ActiveTCLegal: {},
-    ActiveLiabLegal: {},
+    minor: false,
+    ActiveTCLegal: { minor: false, pSig: undefined, gSig: undefined },
+    ActiveLiabLegal: { minor: false, pSig: undefined, gSig: undefined },
     statusId: 0,
 
     generalComments: [],
@@ -59,7 +60,7 @@ const defaultLocalState = {
     countryCode: 0,
     phoneTypeCode: DataConstants.MOBILE_PHONE_TYPE_CODE,
 
-    createSessionVisible:false,
+    createSessionVisible: false,
 
     modalIsOpen: false,
     modalTitle: undefined,
@@ -105,10 +106,10 @@ class User extends Component {
     }
 
     toggleAddSession() {
-        if (this.state.createSessionVisible){
-            this.setState({createSessionVisible:false})
-        }else {
-            this.setState({createSessionVisible:true})
+        if (this.state.createSessionVisible) {
+            this.setState({ createSessionVisible: false })
+        } else {
+            this.setState({ createSessionVisible: true })
         }
     }
 
@@ -255,14 +256,14 @@ class User extends Component {
             this.setState(newState);
             this.setComments(comments)
             this.loading(false)
-        }else if (data && data.getAllUserSessions) {
+        } else if (data && data.getAllUserSessions) {
             let sessions = data.getAllUserSessions
             let rawSessions = {}
             for (let index in sessions) {
                 let session = sessions[index];
                 rawSessions[session.sessionId] = session
             }
-            this.setState({rawSessions: rawSessions});
+            this.setState({ rawSessions: rawSessions });
             this.loading(false)
         } else if (error) {
             console.error(`hmmm... \nlooks like something went wrong.  \n${error[0].message}`)
@@ -330,14 +331,14 @@ class User extends Component {
         this.setState({ modalIsOpen: false })
     }
 
-    persistComment(){
+    persistComment() {
         let user = Object.assign({}, this.state);
-        if (user.commentContent && user.commentContent !== ''){
+        if (user.commentContent && user.commentContent !== '') {
             this.loading(true)
             DatabaseAPI.addUserComment(this.props.user, user, this.confirmationAlert)
         }
     }
-    
+
 
     demotePromote() {
         this.loading(true)
@@ -430,7 +431,7 @@ class User extends Component {
                 <ConfirmationModal isOpen={this.state.modalIsOpen} title={this.state.modalTitle} body={this.state.modalBody} onClose={this.state.modalOnClose} parentState={this.state} onSubmit={this.state.modalOnSubmit} />
                 <div className='section'>
                     < div className='row'>
-                        <div className='col border' style={{ minWidth:'33%', flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
+                        <div className='col border' style={{ minWidth: '33%', flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::user details::</h2>
                             <div className='separator'></div>
 
@@ -711,6 +712,13 @@ class User extends Component {
 
                             <div className='row even-space' style={{ width: '75%' }}>
                                 <div className='row' style={{ width: '100%' }}>
+                                    <label style={{ 'width': 300 }} htmlFor="canContact">is a minor [read only]</label>
+                                    <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="minor" name="minor" value={this.state.minor ? '[X]' : '[ ]'} readOnly />
+                                </div>
+                            </div>
+
+                            <div className='row even-space' style={{ width: '75%' }}>
+                                <div className='row' style={{ width: '100%' }}>
                                     <label style={{ 'width': 300 }} htmlFor="tcAgree">agree to terms and conditions </label>
                                     <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="tc-agree" name="tcAgree" value={this.state.tcAgree ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
                                 </div>
@@ -722,6 +730,58 @@ class User extends Component {
                                     <input style={{ 'width': 50 }} autoComplete='off' className="checkBox" type="text" id="liable-agree" name="liableAgree" value={this.state.liableAgree ? '[X]' : '[ ]'} onClick={this.updateInput} readOnly />
                                 </div>
                             </div>
+
+                            <div className='row even-space' style={{ width: '75%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="tcPsig">terms and conditions participant signature [read only]</label>
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '75%' }}>
+                                <div className='row border' style={{ width: '100%' }}>
+                                    <img src={`data:image/png;base64,${this.state.ActiveTCLegal.pSig}`} id="tc-p-sig" name="tcPsig" alt="no sig found" />
+                                </div>
+                            </div>
+
+                            {this.state.ActiveTCLegal.minor &&
+                                <div className='row even-space' style={{ width: '75%' }}>
+                                    <div className='row' style={{ width: '100%' }}>
+                                        <label htmlFor="tcGsig">terms and conditions guardian signature [read only]</label>
+                                    </div>
+                                </div>
+                            }
+                            {this.state.ActiveTCLegal.minor &&
+                                <div className='row even-space' style={{ width: '75%' }}>
+                                    <div className='row border' style={{ width: '100%' }}>
+                                        <img src={`data:image/png;base64,${this.state.ActiveTCLegal.gSig}`} id="tc-g-sig" name="tcGsig" alt="no sig found" />
+                                    </div>
+                                </div>
+                            }
+                            
+                            <div className='row even-space' style={{ width: '75%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="liabPsig">ltb liability waiver participant signature [read only]</label>
+                                </div>
+                            </div>
+                            <div className='row even-space' style={{ width: '75%' }}>
+                                <div className='row border' style={{ width: '100%' }}>
+                                    <img src={`data:image/png;base64,${this.state.ActiveLiabLegal.pSig}`} id="liab-p-sig" name="liabPsig" alt="no sig found" />
+                                </div>
+                            </div>
+
+                            {this.state.ActiveLiabLegal.minor &&
+                                <div className='row even-space' style={{ width: '75%' }}>
+                                    <div className='row' style={{ width: '100%' }}>
+                                        <label htmlFor="liabGsig">ltb liability waiver guardian signature [read only]</label>
+                                    </div>
+                                </div>
+                            }
+                            {this.state.ActiveLiabLegal.minor &&
+                                <div className='row even-space' style={{ width: '75%' }}>
+                                    <div className='row border' style={{ width: '100%' }}>
+                                        <img src={`data:image/png;base64,${this.state.ActiveLiabLegal.gSig}`} id="liab-g-sig" name="liabGsig" alt="no sig found" />
+                                    </div>
+                                </div>
+                            }
 
                             <div className='row even-space' style={{ width: '75%' }}>
                                 <div className='row' style={{ width: '100%' }}>
@@ -768,7 +828,7 @@ class User extends Component {
                         </div>
                     </div>
                 </div>
-                <SessionCreationDisplay parent={this} right={true} panelVisible={this.state.createSessionVisible}/>
+                <SessionCreationDisplay parent={this} right={true} panelVisible={this.state.createSessionVisible} />
             </div>
         );
     }

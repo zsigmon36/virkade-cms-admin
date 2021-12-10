@@ -25,6 +25,7 @@ class SessionCreationDisplay extends Component {
         firstName: '',
         lastName: '',
         userId: '',
+        displayName: '',
         selAvilSessionTime: 0,
     }
     componentDidMount() {
@@ -121,6 +122,7 @@ class SessionCreationDisplay extends Component {
         if (this.validateInput(this.state, true)) {
             let session = this.state.availableSessionsRaw[sessionTime]
             session.username = this.state.username
+            session.displayName = this.state.displayName
             this.loading(true)
             DatabaseAPI.addUserSession(this.props.parent.props.user, session, this.confirmationAlert)
         }
@@ -244,6 +246,13 @@ class SessionCreationDisplay extends Component {
                             <div className='row' style={{ width: '100%' }}>
                                 <label htmlFor="username" >username:</label>
                                 <input autoComplete='off' type="text" id="username" name="username" onChange={this.updateInput} value={this.state.username} readOnly />
+                            </div>
+                        </div>
+
+                        <div className='row even-space' >
+                            <div className='row' style={{ width: '100%' }}>
+                                <label htmlFor="displayName" >display name:</label>
+                                <input autoComplete='off' type="text" id="display-name" name="displayName" onChange={this.updateInput} value={this.state.displayName} />
                             </div>
                         </div>
 

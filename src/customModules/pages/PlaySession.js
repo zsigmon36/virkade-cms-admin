@@ -32,6 +32,7 @@ const defaultLocalState = {
     firstName: '',
     lastName: '',
     username: '',
+    displayName: '',
     emailAddress: '',
     costpm: 0,
     taxRate: 0,
@@ -146,6 +147,7 @@ class User extends Component {
             newState.payed = session.payed
             newState.userId = session.userId
             newState.username = session.username
+            newState.displayName = session.displayName
             newState.firstName = session.firstName
             newState.lastName = session.lastName
             newState.taxRate = taxRate
@@ -461,6 +463,12 @@ class User extends Component {
                                 </div>
                             </div>
 
+                            <div className='row even-space' style={{ width: '80%' }}>
+                                <div style={{ width: '100%' }}>
+                                    <label >display name: {this.state.displayName}</label>
+                                </div>
+                            </div>
+
                             <div style={{ minHeight: 161 }}></div>
 
                             <div className='row' style={{ width: '100%' }}>
@@ -527,6 +535,13 @@ class User extends Component {
                                 <div className='row' style={{ width: '100%' }}>
                                     <label htmlFor="username" >username:</label>
                                     <input autoComplete='off' type="text" id="username" name="username" onChange={this.updateInput} value={this.state.username} readOnly />
+                                </div>
+                            </div>
+
+                            <div className='row even-space' style={{ width: '80%' }}>
+                                <div className='row' style={{ width: '100%' }}>
+                                    <label htmlFor="displayName" >display name:</label>
+                                    <input autoComplete='off' type="text" id="display-name" name="displayName" onChange={this.updateInput} value={this.state.displayName} />
                                 </div>
                             </div>
 
