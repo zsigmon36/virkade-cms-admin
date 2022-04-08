@@ -2,7 +2,8 @@ export const pickerData = {
     serviceName: [
         { label: 'select', value: 0 },
         { label: 'cash', value: 1 },
-        { label: 'payPal', value: 2 },
+        { label: 'PayPal Zettle', value: 2 },
+        { label: 'CBMS Community Bankers', value: 3 },
     ],
     status: [
         { label: 'active', value: '1' },

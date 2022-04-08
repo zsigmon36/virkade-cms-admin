@@ -27,6 +27,7 @@ class SessionCreationDisplay extends Component {
         userId: '',
         displayName: '',
         selAvilSessionTime: 0,
+        lengthOptions: []
     }
     componentDidMount() {
     }
@@ -38,8 +39,8 @@ class SessionCreationDisplay extends Component {
             newState.firstName = this.props.parent.state.firstName;
             newState.lastName = this.props.parent.state.lastName;
             this.setState({ state: newState })
-        } 
-        if (this.props.panelVisible && oldProps.panelVisible !== this.props.panelVisible){
+        }
+        if (this.props.panelVisible && oldProps.panelVisible !== this.props.panelVisible) {
             DatabaseAPI.getAvailableSessions(this.props.parent.props.user, this.props.searchFilter, this.setSessionOptions)
         }
     }
@@ -52,21 +53,25 @@ class SessionCreationDisplay extends Component {
 
     setSessionOptions(data) {
         let pickerItems = [];
-        if (data.getAvailableSessions) {
-            (data.getAvailableSessions).map((item, index) => {
+        let lengthOptions = new Set();
+        if (data && data.getAvailableSessions) {
+            data.getAvailableSessions.map((item, index) => {
+                lengthOptions.add(item.length)
                 let startDate = moment(item.startDate, 'yyyy-MM-DD hh:mm:ss.S')
                 let endDate = moment(item.endDate, 'yyyy-MM-DD hh:mm:ss.S')
                 startDate = startDate.format('ddd hh:mm a')
                 endDate = endDate.format('ddd hh:mm a')
-                pickerItems.push({ key: index, label: `${startDate} - ${endDate}`, value: index })
+                pickerItems.push({ length: item.length, key: index, label: `${startDate} - ${endDate}`, value: index })
                 return true
             })
             this.setState({ 'availableSessionsRaw': data.getAvailableSessions })
             this.setState({ 'availableSessionsPicker': pickerItems })
+            this.setState({ lengthOptions: Array.from(lengthOptions) })
         }
         else {
             this.setState({ 'availableSessionsRaw': [] })
             this.setState({ 'availableSessionsPicker': [] })
+            this.setState({ lengthOptions: [] })
         }
         this.loading(false)
     }
@@ -118,7 +123,17 @@ class SessionCreationDisplay extends Component {
         }
     }
 
-    scheduleSession(sessionTime) {
+    scheduleSession(sessionTime, length) {
+        if (!sessionTime) {
+            this.state.availableSessionsRaw.some((session, index) => {
+                if (session.length === length) {
+                    sessionTime = index
+                    return true
+                }
+                return false
+            })
+        }
+
         if (this.validateInput(this.state, true)) {
             let session = this.state.availableSessionsRaw[sessionTime]
             session.username = this.state.username
@@ -166,8 +181,8 @@ class SessionCreationDisplay extends Component {
                     style={this.props.panelVisible ? (
                         this.props.right ? { right: 0 } : { left: 0 }
                     ) : (
-                            this.props.right ? { right: '-50%' } : { left: '-50%' }
-                        )}>
+                        this.props.right ? { right: '-50%' } : { left: '-50%' }
+                    )}>
                     <div className='section' style={{ 'width': '100%' }}>
                         <h2>::schedule session::</h2>
                         <div className='separator'></div>
@@ -197,38 +212,55 @@ class SessionCreationDisplay extends Component {
                         </div>
                         <div className='separator'></div>
 
-                        <div className='row' style={{ width: '100%' }}>
-                            <button className='bigBorder' style={{ 'flexGrow': 1 }} onClick={() => this.scheduleSession(this.state.selAvilSessionTime)} >
-                                first aviliable
-                            </button>
-                        </div>
-                        <div className='row even-space' >
-                            <div className='row' style={{ width: '100%' }}>
-                                <label>-- or --</label>
-                            </div>
-                        </div>
-                        <div className='row even-space' >
-                            <div className='row' style={{ width: '100%' }}>
-                                <label>:: pick a time below ::</label>
-                            </div>
-                        </div>
 
                         <div className='row even-space' >
-                            <select
-                                style={{ flexGrow: 1, borderLeft: 'none', borderRight: 'none' }}
-                                id='sel-avil-session-time'
-                                value={this.state.selAvilSessionTime}
-                                name='selAvilSessionTime'
-                                onChange={this.updateInput}>
-                                {
-                                    this.state.availableSessionsPicker.map(item => {
-                                        return <option key={item.key} value={item.value} >{item.label}</option>
-                                    })
-                                }
-                            </select>
+                            <div className='row' style={{ width: '100%' }}>
+                                <label>{this.state.lengthOptions.length > 0 ? ':: pick a time below ::' : ':: no time available ::'}</label>
+                            </div>
                         </div>
+                        {
+                            this.state.lengthOptions.map(length => {
+                                return (
+                                    <div className='col border' >
+                                        <div className='row even-space' style={{ width: '100%' }}>
+                                            <button className='bigBorder' style={{ 'flexGrow': 1 }} onClick={() => this.scheduleSession(undefined, length)} >
+                                                first aviliable
+                                            </button>
+                                        </div>
+                                        <div className='row' >
+                                            <div className='row even-space' style={{ width: '100%' }}>
+                                                <label>-- or --</label>
+                                            </div>
+                                        </div>
 
-                        <div className='row even-space'>&nbsp;</div>
+                                        <div className='row even-space' style={{ width: '100%' }}>
+                                            <label htmlFor={`sel-avil-session-time-${length}`} >session length: {length} minute</label>
+                                        </div>
+                                        <div className='row even-space' style={{ width: '100%' }}>
+                                            <select
+                                                style={{ width: '100%', flexGrow: 1, borderLeft: 'none', borderRight: 'none' }}
+                                                id={`sel-avil-session-time-${length}`}
+                                                value={this.state.selAvilSessionTime}
+                                                name='selAvilSessionTime'
+                                                onChange={this.updateInput}>
+                                                <option key='' value='' >select</option>
+                                                {
+                                                    this.state.availableSessionsPicker.map(item => {
+                                                        if (item.length === length) {
+                                                            return <option key={item.key} value={item.value} >{item.label}</option>
+                                                        } else {
+                                                            return false;
+                                                        }
+                                                    })
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                )
+                            })
+                        }
+                        < div className='row even-space'>&nbsp;</div>
 
                         <div className='row even-space' >
                             <div className='row' style={{ width: '100%' }}>
@@ -315,13 +347,13 @@ class SessionCreationDisplay extends Component {
                         <div className='row even-space' style={{ width: '100%' }}>
                             <button className='bigBorder' style={{ 'flexGrow': 1 }} onClick={() => this.scheduleSession(this.state.selAvilSessionTime)} >
                                 schedule session
-                                    </button>
+                            </button>
                         </div>
 
                         <div className='row even-space' style={{ width: '100%' }}>
                             <button className='bigBorder' style={{ 'flexGrow': 1 }} onClick={() => { this.props.parent.toggleAddSession() }} >
                                 cancel
-                                    </button>
+                            </button>
                         </div>
                     </div>
 
@@ -329,7 +361,7 @@ class SessionCreationDisplay extends Component {
                 </div>
 
 
-            </div>
+            </div >
 
         );
     }

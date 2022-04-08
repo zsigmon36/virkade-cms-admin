@@ -19,6 +19,7 @@ const defaultLocalState = {
     rawSessions: {},
     availableSessionsPicker: [],
     availableSessionsRaw: [],
+    lengthOptions: [],
     userId: 0,
     sessionId: 0,
     selectedSessionIds: [],
@@ -39,6 +40,7 @@ const defaultLocalState = {
     sessionTotal: 0,
     transactionId: 0,
     refId: '',
+    approvalCode: '',
     payment: 0,
     paymentDescription: "",
     selAvilSessionTime: 0,
@@ -165,6 +167,7 @@ class User extends Component {
                 }
             }
             newState.refId = session.transaction ? session.transaction.refId : ''
+            newState.approvalCode = session.transaction ? session.transaction.approvalCode : ''
             newState.payment = session.transaction ? session.transaction.payment : 0
             newState.paymentDescription = session.transaction ? session.transaction.description.replaceAll(DataConstants.NEW_LINE_TOKEN, " ") : ''
 
@@ -188,18 +191,21 @@ class User extends Component {
 
     setSessionOptions(data) {
         let pickerItems = [];
-        if (data.getAvailableSessions) {
+        let lengthOptions = new Set();
+        if (data && data.getAvailableSessions) {
             (data.getAvailableSessions).map((item, index) => {
+                lengthOptions.add(item.length)
                 let startDate = moment(item.startDate, 'yyyy-MM-DD hh:mm:ss.S')
                 let endDate = moment(item.endDate, 'yyyy-MM-DD hh:mm:ss.S')
                 startDate = startDate.format('ddd hh:mm a')
                 endDate = endDate.format('ddd hh:mm a')
-                pickerItems.push({ key: index, label: `${startDate} - ${endDate}`, value: index })
+                pickerItems.push({ length: item.length, key: index, label: `${startDate} - ${endDate}`, value: index })
                 return true
             })
             if ((data.getAvailableSessions).length > 0) {
                 this.setState({ 'availableSessionsRaw': data.getAvailableSessions })
                 this.setState({ 'availableSessionsPicker': pickerItems })
+                this.setState({ lengthOptions: Array.from(lengthOptions) })
             }
         }
         this.loading(false)
@@ -214,6 +220,7 @@ class User extends Component {
     validateInput(data, isAlert = true) {
         let { serviceName,
             refId,
+            approvalCode,
             payment,
             sessionId,
             userId,
@@ -255,6 +262,9 @@ class User extends Component {
         } else if (refId !== undefined && (refId === '' || !validator.isNumeric(String(refId)))) {
             msg = 'ref id must not be empty and is expected to be numeric'
             isValid = false;
+        } else if (approvalCode !== undefined && (approvalCode === '' || !validator.isNumeric(String(approvalCode)))) {
+            msg = 'approval code must not be empty and is expected to be numeric'
+            isValid = false;
         } else if (payment !== undefined && (payment === '' || !validator.isCurrency(String(payment)))) {
             msg = 'payment amount has to be a valid currency'
             isValid = false;
@@ -278,6 +288,7 @@ class User extends Component {
             let filter = Object.assign({}, this.props.searchFilter)
             filter[key] = value
             DatabaseAPI.getAllSessions(this.props.user, filter, this.setInit)
+            DatabaseAPI.getAvailableSessions(this.props.user, filter, this.setSessionOptions)
         } else {
             this.setState({ [key]: value })
         }
@@ -288,10 +299,12 @@ class User extends Component {
 
     sessionAction(action) {
         let newState = Object.assign({}, this.state)
+        let selectedTimeIndex = newState.selAvilSessionTime;
         switch (action) {
             case ACTION.DELETE:
                 newState.serviceName = undefined
                 newState.refId = undefined
+                newState.approvalCode = undefined
                 newState.payment = undefined
                 newState.selAvilSessionTime = undefined
                 newState.availableSessionsPicker = undefined
@@ -302,7 +315,6 @@ class User extends Component {
                 }
                 break;
             case ACTION.UPDATE:
-                let selectedTimeIndex = newState.selAvilSessionTime;
                 if (selectedTimeIndex === undefined || !validator.isNumeric(String(selectedTimeIndex)) || parseInt(selectedTimeIndex) < 0) {
                     let error = []
                     error[0] = "no valid play session detected"
@@ -314,12 +326,13 @@ class User extends Component {
                 let selActivity = this.props.searchFilter.selActivityFilter
                 newState.serviceName = undefined
                 newState.refId = undefined
+                newState.approvalCode = undefined
                 newState.payment = undefined
                 newState.selectedSessionIds = undefined
-                let selectedSession = newState.availableSessionsRaw[selectedTimeIndex]
-
-                newState.startDate = selectedSession ? selectedSession.startDate : newState.startDate
-                newState.endDate = selectedSession ? selectedSession.endDate : newState.endDate
+                let updateSelectedSession = newState.availableSessionsRaw[selectedTimeIndex]
+                newState.startDate = updateSelectedSession ? updateSelectedSession.startDate : newState.startDate
+                newState.endDate = updateSelectedSession ? updateSelectedSession.endDate : newState.endDate
+                newState.length = updateSelectedSession.length
                 newState.locationName = selLocation && selLocation !== "" ? this.state.locationDetails[selLocation].name : ""
                 newState.activityName = selActivity && selActivity !== "" ? this.state.activityDetails[selActivity].name : ""
                 if (this.validateInput(newState, true)) {
@@ -330,9 +343,12 @@ class User extends Component {
             case ACTION.UNPAY:
                 newState.serviceName = undefined
                 newState.refId = undefined
+                newState.approvalCode = undefined
                 newState.payment = undefined
+                newState.length = newState.duration
                 newState.startDate = newState.rawStartDate
                 newState.endDate = newState.rawEndDate
+                newState.availableSessionsPicker = undefined
                 if (this.validateInput(newState, true)) {
                     this.loading(true)
                     newState.payed = false
@@ -412,8 +428,8 @@ class User extends Component {
                     <div className='row even-space'>
                         <h4>{this.state.validatorMsg}</h4>
                     </div>
-                    < div className='row'>
-                        <div className='col border' style={{ flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
+                    < div className='row' >
+                        <div className='col border' style={{minHeight: 800, flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::session details::</h2>
                             <div className='separator'></div>
                             <div className='row even-space' style={{ width: '80%' }}>
@@ -469,16 +485,14 @@ class User extends Component {
                                 </div>
                             </div>
 
-                            <div style={{ minHeight: 161 }}></div>
-
                             <div className='row' style={{ width: '100%' }}>
                                 <button style={{ 'flexGrow': 1 }} onClick={() => this.sessionAction(ACTION.DELETE)} >
                                     delete session
-                                    </button>
+                                </button>
                             </div>
                         </div>
 
-                        <div className='col border' style={{ flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
+                        <div className='col border' style={{ minHeight: 800, flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::update session::</h2>
                             <div className='separator'></div>
                             <div className='row even-space' style={{ width: '80%' }}>
@@ -489,24 +503,42 @@ class User extends Component {
                             </div>
                             <div className='row even-space' >
                                 <div className='row'>
-                                    <label>:: pick a time below ::</label>
+                                    <label>{this.state.lengthOptions.length > 0 ? ':: pick a time below ::' : ':: no time available ::'}</label>
                                 </div>
                             </div>
 
-                            <div className='row even-space' style={{ width: '80%' }}>
-                                <select
-                                    style={{ flexGrow: 1 }}
-                                    id='sel-avil-session-time'
-                                    value={this.state.selAvilSessionTime}
-                                    name='selAvilSessionTime'
-                                    onChange={this.updateInput}>
-                                    {
-                                        this.state.availableSessionsPicker.map(item => {
-                                            return <option key={item.key} value={item.value} >{item.label}</option>
-                                        })
-                                    }
-                                </select>
-                            </div>
+                            {
+                                this.state.lengthOptions.map(length => {
+                                    return (
+                                        <div className='col border' style={{ width: '90%' }}>
+                                             <div className='row even-space'>&nbsp;</div>
+                                            <div className='row even-space'>
+                                                <label htmlFor={`sel-avil-session-time-${length}`} >session length: {length} minute</label>
+                                            </div>
+                                            <div className='row even-space' style={{ 'width': '100%' }}>
+                                                <select
+                                                    style={{flexGrow: 1, borderLeft: 'none', borderRight: 'none' }}
+                                                    id={`sel-avil-session-time-${length}`}
+                                                    value={this.state.selAvilSessionTime}
+                                                    name='selAvilSessionTime'
+                                                    onChange={this.updateInput}>
+                                                    <option key='' value='' >select</option>
+                                                    {
+                                                        this.state.availableSessionsPicker.map(item => {
+                                                            if (item.length === length) {
+                                                                return <option key={item.key} value={item.value} >{item.label}</option>
+                                                            } else {
+                                                                return false;
+                                                            }
+                                                        })
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    )
+                                })
+                            }
 
                             <div className='row even-space' style={{ width: '80%' }}>
                                 <label htmlFor="selLocationFilter" >location:</label>
@@ -545,16 +577,14 @@ class User extends Component {
                                 </div>
                             </div>
 
-                            <div style={{ minHeight: 131 }}></div>
-
                             <div className='row' style={{ width: '100%' }}>
                                 <button style={{ 'flexGrow': 1 }} onClick={() => this.sessionAction(ACTION.UPDATE)} >
                                     update session
-                                    </button>
+                                </button>
                             </div>
                         </div>
 
-                        <div className='col border' style={{ flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
+                        <div className='col border' style={{ minHeight: 800, flexGrow: 1, padding: '0 10px 0 10px', margin: '0 10px 0 10px', alignSelf: 'flex-start' }}>
                             <h2>::transaction details::</h2>
                             <div className='separator'></div>
 
@@ -641,6 +671,11 @@ class User extends Component {
                             </div>
 
                             <div className='row even-space' style={{ width: '80%' }}>
+                                <label htmlFor="approvalCode" >approval code: #</label>
+                                <input autoComplete='off' type="text" id="approval-code" name="approvalCode" onChange={this.updateInput} value={this.state.approvalCode} />
+                            </div>
+
+                            <div className='row even-space' style={{ width: '80%' }}>
                                 <label htmlFor="payment" >payment: $</label>
                                 <input autoComplete='off' type="text" id="payment" name="payment" onChange={this.updateInput} value={this.state.payment} />
                             </div>
@@ -660,7 +695,7 @@ class User extends Component {
                                 }
                                 <button style={{ 'flexGrow': 1 }} onClick={() => this.updateTrans()} >
                                     update transaction
-                                    </button>
+                                </button>
                             </div>
                         </div>
                     </ div>

@@ -222,6 +222,7 @@ export const GraphQLMutationParamStrings = {
                 ${DataConstants.INPUT_PLAY_SESSION}: {
                     ${DataConstants.START_DATE}:"${session.startDate}",
                     ${DataConstants.END_DATE}:"${session.endDate}",
+                    ${DataConstants.LENGTH}:${session.length},
                     ${DataConstants.LOCATION_NAME}:"${session.location.name}",
                     ${DataConstants.ACTIVITY_NAME}:"${session.activity.name}",
                     ${DataConstants.PAYED}:false,
@@ -241,6 +242,7 @@ export const GraphQLMutationParamStrings = {
             (
                 ${DataConstants.INPUT_PLAY_SESSION}: {
                     ${DataConstants.SESSIONID}:${fields.sessionId},
+                    ${DataConstants.LENGTH}:${fields.length},
                     ${DataConstants.TRASACTION_ID}:${fields.transactionId},
                     ${DataConstants.START_DATE}:"${fields.startDate}",
                     ${DataConstants.END_DATE}:"${fields.endDate}",
@@ -352,6 +354,7 @@ export const GraphQLMutationParamStrings = {
                         ${DataConstants.SERVICE_NAME}:"${fields.serviceName}",
                         ${DataConstants.DESCRIPTION}:"${cleanDesc}",
                         ${DataConstants.REF_ID}:"${fields.refId}",
+                        ${DataConstants.APPRV_CODE}:"${fields.approvalCode}",
                         ${DataConstants.PAYMENT}:${fields.payment}
                     }
                 )

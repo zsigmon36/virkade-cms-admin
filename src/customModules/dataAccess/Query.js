@@ -237,8 +237,9 @@ export const GraphQLQueryParamStrings = {
             paramString += ")"
         }
         let query = `${DataConstants.QUERY} { ${DataConstants.GET_AVAIL_PLAY_SESSIONS}
-                ${paramString}
+           		${paramString}
             {
+                ${DataConstants.LENGTH}
                 ${DataConstants.START_DATE}
                 ${DataConstants.END_DATE}
                 ${DataConstants.LOCATION}{
@@ -399,6 +400,7 @@ export const GraphQLQueryParamStrings = {
                     ${DataConstants.SERVICE_NAME}
                     ${DataConstants.DESCRIPTION}
                     ${DataConstants.REF_ID}
+                    ${DataConstants.APPRV_CODE}
                     ${DataConstants.PAYMENT}
                 }
             }
@@ -445,6 +447,7 @@ export const GraphQLQueryParamStrings = {
                     ${DataConstants.SERVICE_NAME}
                     ${DataConstants.DESCRIPTION}
                     ${DataConstants.REF_ID}
+                    ${DataConstants.APPRV_CODE}
                     ${DataConstants.PAYMENT}
                 }
             }
@@ -481,6 +484,7 @@ export const GraphQLQueryParamStrings = {
                     ${DataConstants.DESCRIPTION}
                     ${DataConstants.SESSION_IDS}
                     ${DataConstants.REF_ID}
+                    ${DataConstants.APPRV_CODE}
                     ${DataConstants.PAYMENT}
                 }
             }

@@ -30,6 +30,7 @@ class SessionTableDisplay extends Component {
         transactionTotal: 0,
         serviceName: 0,
         refId: '',
+        approvalCode: '',
         payment: '',
         paymentDescription: '',
 
@@ -48,7 +49,7 @@ class SessionTableDisplay extends Component {
     }
 
     validateInput(data, isAlert = true) {
-        let { serviceName, refId, payment, selectedSessions } = data
+        let { serviceName, refId, approvalCode, payment, selectedSessions } = data
         let msg = '';
         let isValid = true
 
@@ -60,6 +61,9 @@ class SessionTableDisplay extends Component {
             isValid = false;
         } else if (refId === undefined || refId === '' || !validator.isNumeric(String(refId))) {
             msg = 'ref id must not be empty and is expected to be numeric'
+            isValid = false;
+        } else if (approvalCode === undefined || approvalCode === '' || !validator.isNumeric(String(approvalCode))) {
+            msg = 'approval code must not be empty and is expected to be numeric'
             isValid = false;
         } else if (payment === undefined || payment === '' || !validator.isCurrency(String(payment))) {
             msg = 'payment amount has to be a valid currency'
@@ -319,6 +323,11 @@ class SessionTableDisplay extends Component {
                         <div className='row even-space'>
                             <label htmlFor="refId" >reference id: #</label>
                             <input autoComplete='off' type="text" id="ref-id" name="refId" onChange={this.updateInput} value={this.state.refId} />
+                        </div>
+
+                        <div className='row even-space'>
+                            <label htmlFor="approvalCode" >approval code: #</label>
+                            <input autoComplete='off' type="text" id="approval-code" name="approvalCode" onChange={this.updateInput} value={this.state.approvalCode} />
                         </div>
 
                         <div className='row even-space'>
