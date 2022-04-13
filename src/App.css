@@ -1,38 +1,399 @@
-.App {
+@font-face {
+  font-family: terminus-bold;
+  src: url(fonts/TerminusTTFWindows-Bold-4.46.0.ttf);
+}
+
+@font-face {
+  font-family: terminus;
+  src: url(fonts/TerminusTTFWindows-4.46.0.ttf);
+}
+body {
+  flex-direction: column;
+  flex-grow: 1;
+  font-family: terminus;
+  background-color: #001a00;
+  color: #9fff80;
+  font-size: 18px;
+  display: flex;
+  scroll-behavior: smooth;
+}
+
+body::-webkit-scrollbar, div::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.5em;
+}
+
+body::-webkit-scrollbar-corner, div::-webkit-scrollbar-corner {
+  background-color: #003700;
+}
+
+body::-webkit-scrollbar-button, div::-webkit-scrollbar-button {
+  background-color: #003700;
+}
+
+body::-webkit-scrollbar-track, div::-webkit-scrollbar-track {
+  background-color: #003700;
+}
+
+body::-webkit-scrollbar-thumb, div::-webkit-scrollbar-thumb {
+  background-color: #9fff80;
+}
+
+.wrapper {
+      flex-grow: 1;
+      background-color: #001a00;
+      display: flex;
+      flex-direction: column;
+      min-width: 1500px;
+  }
+.section {
+  display: block;
+  margin: 10px;
+}
+
+.tabs-wrapper {
+  display: flex;
+  border-color: #9fff80;
+  border-width: 1px;
+  border-bottom-style: solid;
+  margin: 30px 0;
+}
+.tab {
+  border-color: #9fff80;
+  border-width: 1px;
+  border-right-style: solid;
+  border-top-style: solid;
+  flex-grow: 1;
+  text-decoration: none;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   text-align: center;
 }
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.tab-active {
+  background-color: #003700;
+  border-width: 2px;
+}
+.tab-last {
+  border-right: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.border {
+  border-color: #9fff80;
+  border-width: 1px;
+  border-style: solid;
+}
+  div {
+    display: flex;
   }
+.main {
+      flex-direction: column;
+      flex: 1;
+      padding: 10px;
+  }
+h1 {
+      font-size: 32px;
+      align-self: center;
+      font-family: terminus-bold;
+      text-align: center;
+      flex: 1;
+  }
+h2 {
+      font-size: 28px;  
+      align-self: center;
+      font-family: terminus-bold;
+      text-align: center;
+      flex: 1;
+  }
+h3 {
+      font-size: 22px;
+      align-self: center;
+      font-family: terminus-bold;
+      text-align: center;
+      flex: 1;
+  }
+.checkBox {
+      font-size: 18;
+      font-family: terminus
+  }
+textarea {
+      height: 200px;
+      border-color: #9fff80;
+      border-style: solid;
+      border-width: 1px;
+      margin: 10px;
+      color: #9fff80;
+      background-color: #001a00;
+      resize: none;
+      font-size: 16px;
+  }
+  textarea:focus{
+    outline: none
+  }
+.infoCard {
+  min-height: 100px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 5px;
+  }
+.center {
+      align-self: center;
+      align-items: center;
+  }
+.rowFirst {
+      margin-top: 10px;
+  }
+.row {
+      align-items: center;
+      flex-direction: row;
+      justify-content: center;
+      margin: 3px 0;
+  }
+  .col {
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+.even-space {
+  flex: 1
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+label, .label {
+      font-size: 18px;
+      margin: 5px
+  }
+input {
+  flex: 1;
+  font-size: 18px;
+  border-color: #9fff80;
+  color: #9fff80;
+  background-color: #001a00;
+  font-family: 'terminus';
+  border-width: 1px;
+  border-style: solid;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  margin: 5px;
+}
+input:focus {
+  outline: none;
+}
+a {
+  color: #9fff80;
+}
+
+.picker {  
+      flex: 1;
+      text-decoration-line: underline;
+      align-items: center;
+      align-self: center;
+      justify-content: center
+  }
+.pickerItem {
+      flex: 1;
+      text-decoration-line: underline;
+  }
+.spacer {
+      width: 50px;
+  }
+button {
+      margin: 10px;
+      min-width: 125px;
+      border-color: #9fff80;
+      color: #9fff80;
+      background-color: #001a00;
+      font-family: 'terminus';
+      border-width: 1px;
+      height: 50px;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border-style: solid;
+      cursor: pointer;
+  }
+
+  button:focus {
+    outline: none;
+  }
+  button:active {
+    border-width: 2px;
+    font-family: terminus-bold;
+  }
+  select {
+    margin: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-color: #9fff80;
+    color: #9fff80;
+    background-color: #001a00;
+    font-family: 'terminus';
+    border-width: 1px;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border-style: solid;
+}
+select:focus {
+  outline: none;
+}
+select:active {
+  border-width: 2px;
+  font-family: terminus-bold;
+}
+.hyperlink {
+  border: none;
+  margin: 5px;
+  text-decoration: underline;
+}
+input[type='checkbox'], .checkBox {
+  font-size: 26px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+.center {
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-content: center;
 }
 
-.App-link {
-  color: #61dafb;
+table, .table {
+      flex-direction: row;
+      flex: 1;
+      margin: 0 10px;
+  }
+th, .th {
+      flex-direction: column;
+      border-color: #9fff80;
+      font-family: terminus-bold;
+      border-style: solid;
+      border-width: 0 0 1px 0;
+      flex-grow: 1;
+      flex-basis: 0;
+      padding: 10px 5px;
+      font-size: 22px;
+
+  }
+tr, .tr {
+      flex-direction: column;
+      border-color: #9fff80;
+      flex-grow: 1;
+      flex-basis: 0;
+      padding: 10px 0px 5px 10px;
+      font-family: terminus;
+  }
+.alt{
+  background-color: #003700;
+}
+.separator {
+      margin: 5px 0 10px 0;
+      border-color: #9fff80;
+      border-bottom-width: 1px;
+      border-bottom-style: solid;
+      width: 100%;
+  }
+.bigger {
+      font-size: 22;
+  }
+.bold {
+    font-family: terminus-bold;
+    font-weight: 700;
+}
+.boldLabel {
+      font-size: 18px;
+      font-family: terminus-bold;
+}
+.boldCheckbox {
+    font-size: 28px;
+    font-family: terminus-bold;
+}
+.bigBorder {
+      border-color: #9fff80;
+      border-width: 2px;
+  }
+.logo {
+    min-width: 150px;
+    background: center no-repeat url(static/logo.png);
+    background-size: contain;
+}
+.header {
+  display: flex;
+  flex-grow: 1;
+  border-color: #9fff80;
+  border-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  height: 100px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.filter-active{
+  background-color: #003700;
+  border-width: 3px;
 }
+.filters {
+  flex-direction: row;
+}
+.row-filler{
+  flex-grow: 1;
+}
+#root {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+}
+
+.modal {
+  width: 450px;
+  min-height: 350px;
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -175px;
+  margin-left: -225px;
+  border: solid 1px;
+  background-color: #001a00;
+}
+.modal-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.close-icon{
+  font-size: 32px;
+  align-self: flex-end;
+  border: 0;
+  width: unset;
+  padding: 0;
+  margin: 0;
+}
+
+.side-panel {
+  position: fixed;
+  left: 0;
+  top:0;
+  width: 25%;
+  min-width: 450px;
+  border-width: 2px;
+  border-left: none;
+  height: 100vh;
+  background-color: #001a00;
+  transition: left 0.5s;
+  overflow-y: auto;
+}
+
+.side-panel-right {
+  position: fixed;
+  right: 0;
+  top:0;
+  width: 25%;
+  min-width: 450px;
+  border-width: 2px;
+  border-right: none;
+  height: 100vh;
+  background-color: #001a00;
+  transition: right 0.5s;
+  overflow-y: auto;
+}
+
