@@ -149,7 +149,7 @@ class User extends Component {
             newState.payed = session.payed
             newState.userId = session.userId
             newState.username = session.username
-            newState.displayName = session.displayName
+            newState.displayName = session.displayName || ''
             newState.firstName = session.firstName
             newState.lastName = session.lastName
             newState.taxRate = taxRate
@@ -262,8 +262,8 @@ class User extends Component {
         } else if (refId !== undefined && (refId === '' || !validator.isNumeric(String(refId)))) {
             msg = 'ref id must not be empty and is expected to be numeric'
             isValid = false;
-        } else if (approvalCode !== undefined && (approvalCode === '' || !validator.isNumeric(String(approvalCode)))) {
-            msg = 'approval code must not be empty and is expected to be numeric'
+        } else if (approvalCode !== undefined && (approvalCode === '' || approvalCode < 4)) {
+            msg = 'approval code must not be empty and is expected to be more than 3 characters'
             isValid = false;
         } else if (payment !== undefined && (payment === '' || !validator.isCurrency(String(payment)))) {
             msg = 'payment amount has to be a valid currency'
@@ -508,7 +508,7 @@ class User extends Component {
                             </div>
 
                             {
-                                this.state.lengthOptions.map(length => {
+                                this.state.lengthOptions.map((length, index) => {
                                     return (
                                         <div className='col border' style={{ width: '90%' }}>
                                              <div className='row even-space'>&nbsp;</div>
@@ -522,7 +522,7 @@ class User extends Component {
                                                     value={this.state.selAvilSessionTime}
                                                     name='selAvilSessionTime'
                                                     onChange={this.updateInput}>
-                                                    <option key='' value='' >select</option>
+                                                    <option key={index - 10 } value={index - 10 } >select</option>
                                                     {
                                                         this.state.availableSessionsPicker.map(item => {
                                                             if (item.length === length) {
@@ -671,7 +671,7 @@ class User extends Component {
                             </div>
 
                             <div className='row even-space' style={{ width: '80%' }}>
-                                <label htmlFor="approvalCode" >approval code: #</label>
+                                <label htmlFor="approvalCode" >approval code: </label>
                                 <input autoComplete='off' type="text" id="approval-code" name="approvalCode" onChange={this.updateInput} value={this.state.approvalCode} />
                             </div>
 

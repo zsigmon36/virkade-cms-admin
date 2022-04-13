@@ -62,8 +62,8 @@ class SessionTableDisplay extends Component {
         } else if (refId === undefined || refId === '' || !validator.isNumeric(String(refId))) {
             msg = 'ref id must not be empty and is expected to be numeric'
             isValid = false;
-        } else if (approvalCode === undefined || approvalCode === '' || !validator.isNumeric(String(approvalCode))) {
-            msg = 'approval code must not be empty and is expected to be numeric'
+        } else if (approvalCode === undefined || approvalCode === '' || approvalCode < 4) {
+            msg = 'approval code must not be empty and is expected to be more than 3 characters'
             isValid = false;
         } else if (payment === undefined || payment === '' || !validator.isCurrency(String(payment))) {
             msg = 'payment amount has to be a valid currency'
@@ -326,7 +326,7 @@ class SessionTableDisplay extends Component {
                         </div>
 
                         <div className='row even-space'>
-                            <label htmlFor="approvalCode" >approval code: #</label>
+                            <label htmlFor="approvalCode" >approval code: </label>
                             <input autoComplete='off' type="text" id="approval-code" name="approvalCode" onChange={this.updateInput} value={this.state.approvalCode} />
                         </div>
 

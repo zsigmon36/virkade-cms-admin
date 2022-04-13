@@ -359,8 +359,8 @@ class User extends Component {
             this.props.alertAction({ type: 'error' })
             this.props.alertAction({ msg: 'update requires a selected user' })
             this.props.sharedFlagsAction({ alertOpen: true });
+            this.loading(false)
         }
-        this.loading(false)
     }
 
     addUserPhone() {
